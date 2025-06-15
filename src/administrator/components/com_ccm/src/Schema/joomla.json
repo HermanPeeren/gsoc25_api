@@ -1,0 +1,58 @@
+{
+  "ContentItem": {
+    "type": "articles",
+    "properties": {
+      "id": { "type": "integer" },
+      "asset_id": { "type": "integer" },
+      "title": { "type": "string" },
+      "alias": { "type": "string" },
+      "text": { "type": "html" },
+      "url": { "type": "url" },
+      "urls": {
+        "type": "array",
+        "items": { "type": "url" }
+      },
+      "attribs": { "type": "array" },
+      "summary": { "type": "string" },
+      "state": { "type": "string", "enum": ["published", "unpublished", "draft", "trashed"] },
+      "created": { "type": "date" },
+      "created_by": { "type": "integer" },
+      "created_by_alias": { "type": "string" },
+      "modified": { "type": "date" },
+      "modified_by": { "type": "integer" },
+      "checked_out": { "type": "integer" },
+      "checked_out_time": { "type": "date" },
+      "type": { "type": "string" },
+      "publish_up": { "type": "date" },
+      "publish_down": { "type": "date" },
+      "image": { "type": "url" }, 
+      "images": {
+        "type": "array",
+        "items": { "type": "url" }
+      },
+      "version": { "type": "integer" },
+      "metakey": { "type": "string" },
+      "metadesc": { "type": "string" },
+      "language": { "type": "string" },
+      "access": { "type": "integer" },
+      "hits": { "type": "integer" },
+      "metadata": { "type": "array" },
+      "featured": { "type": "integer" },
+      "note": { "type": "string" },
+      "author": {
+        "type": "array",
+        "$ref": "#/definitions/User"
+      },
+      "categories": {
+        "type": "array",
+        "items": { "$ref": "#/definitions/Category" }
+      },
+      "catid": { "type": "integer" },
+      "tags": {
+        "type": "array",
+        "items": { "$ref": "#/definitions/Tag" }
+      }
+    },
+    "required": ["id", "title", "text"]
+  }
+}

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form addfieldprefix="Reem\Component\CCM\Administrator\Fields">
+    <field
+        name="name"
+        type="text"
+        label="COM_CCM_CONFIG_NAME_LABEL"
+        required="true"
+    />
+    <field name="id" type="hidden" />
+    <field
+        name="url"
+        type="text"
+        label="COM_CCM_CONFIG_URL_LABEL"
+        required="true"
+    />
+    <field
+        name="credentials"
+        type="text"
+        label="COM_CCM_CONFIG_CREDENTIALS_LABEL"
+        required="false"
+    />
+</form>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="component" method="upgrade">
+    <name>COM_CCM</name>
+    <creationDate>2025-05-14</creationDate>
+    <author>Reem</author>
+    <authorEmail>reem.atalah1@gmail.com</authorEmail>
+    <license>GNU General Public License version 2 or later; see LICENSE.txt</license>
+    <version>1.0.0</version>
+    <description>COM_CCM_DESCRIPTION</description>
+    <namespace path="src">Reem\Component\CCM</namespace>
+    <install>
+        <sql>
+            <file driver="mysql" charset="utf8">sql/install.mysql.utf8.sql</file>
+        </sql>
+    </install>
+    <uninstall>
+        <sql>
+            <file driver="mysql" charset="utf8">sql/uninstall.mysql.utf8.sql</file>
+        </sql>
+    </uninstall>
+    <api>
+        <files folder="api/components/com_ccm">
+            <folder>src</folder>
+        </files>
+    </api>
+    <administration>
+        <files>
+            <folder>services</folder>
+            <folder>src</folder>
+            <folder>tmpl</folder>
+            <folder>sql</folder>
+            <folder>forms</folder>
+            <file>config.xml</file>
+            <file>access.xml</file>
+        </files>
+        <languages>
+            <language tag="en-GB">language/en-GB/com_ccm.sys.ini</language>
+			<language tag="en-GB">language/en-GB/com_ccm.ini</language>
+			<language tag="en-GB">language/en-GB/com_ccm.sys.ini</language>
+		</languages>
+        <menu link="option=com_ccm" img="class:default">COM_CCM_MENU_BACKEND</menu>
+    </administration>
+</extension>

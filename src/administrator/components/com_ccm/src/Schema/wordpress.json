@@ -1,0 +1,151 @@
+{   
+    "ContentItem": {
+        "type": "post",
+        "properties": {
+            "ID": { "type": "integer" },
+            "site_ID": { "type": "integer" },
+            "author": {
+                "ID": { "type": "integer" },
+                "login": { "type": "string" },
+                "email": [{ "type": "string" }, { "type": "boolean" }],
+                "name": { "type": "string" },
+                "first_name": { "type": "string" },
+                "last_name": { "type": "string" },
+                "nice_name": { "type": "string" },
+                "URL": { "type": "string" },
+                "avatar_URL": { "type": "string" },
+                "profile_URL": { "type": "string" },
+                "site_ID": { "type": "integer" }
+            },
+            "date": { "type": "string" },
+            "date_gmt": { "type": "string" },
+            "modified": { "type": "string" },
+            "modified_gmt": { "type": "string" },
+            "title": { "type": "string" },
+            "link": { "type": "string" },
+            "permalink_template": { "type": "string" },
+            "URL": { "type": "string" },
+            "short_URL": { "type": "string" },
+            "content": { "type": "string" },
+            "excerpt": { "type": "string" },
+            "slug": { "type": "string" },
+            "generated_slug": { "type": "string" },
+            "guid": { "type": "string" },
+            "status": { "type": "string" },
+            "sticky": { "type": "boolean" },
+            "password": { "type": "string" },
+            "parent": [{ "type": "integer" }, { "type": "boolean" }],
+            "type": { "type": "string" },
+            "comment_status": {
+                "type": "string",
+                "enum": ["open", "closed"]
+            },
+            "ping_status": {
+                "type": "string",
+                "enum": ["open", "closed"]
+            },
+            "discussion": {
+                "comments_open": { "type": "boolean" },
+                "comment_status": {
+                    "type": "string",
+                    "enum": ["open", "closed"]
+                },
+                "pings_open": { "type": "boolean" },
+                "ping_status": {
+                    "type": "string",
+                    "enum": ["open", "closed"]
+                },
+                "comment_count": { "type": "integer" }
+            },
+            "likes_enabled": { "type": "boolean" },
+            "sharing_enabled": { "type": "boolean" },
+            "like_count": { "type": "integer" },
+            "i_like": { "type": "boolean" },
+            "is_reblogged": { "type": "boolean" },
+            "is_following": { "type": "boolean" },
+            "global_ID": { "type": "string" },
+            "featured_image": { "type": "string" },
+            "post_thumbnail": { "type": "object" },
+            "featured_media": { "type": "integer" },
+            "format": {
+                "type": "string",
+                "enum": [
+                    "standard",
+                    "aside",
+                    "chat",
+                    "gallery",
+                    "link",
+                    "image",
+                    "quote",
+                    "status",
+                    "video",
+                    "audio"
+                ]
+            },
+            "geo": [{ "type": "object" }, { "type": "boolean" }],
+            "menu_order": { "type": "integer" },
+            "page_template": { "type": "string" },
+            "template": { "type": "string" },
+            "publicize_URLs": [{ "type": "array" }],
+            "terms": {
+                "category": {
+                    "Uncategorized": {
+                        "ID": { "type": "integer" },
+                        "name": { "type": "string" },
+                        "slug": { "type": "string" },
+                        "description": { "type": "string" },
+                        "post_count": { "type": "integer" },
+                        "parent": { "type": "integer" },
+                        "meta": {
+                            "links": {
+                                "self": { "type": "string" },
+                                "help": { "type": "string" },
+                                "site": { "type": "string" }
+                            }
+                        }
+                    }
+                },
+                "post_tag": [{ "type": "array" }],
+                "post_format": [{ "type": "array" }],
+                "mentions": [{ "type": "array" }]
+            },
+            "tags": [{ "type": "array" }],
+            "categories": {
+                "Uncategorized": {
+                    "ID": { "type": "integer" },
+                    "name": { "type": "string" },
+                    "slug": { "type": "string" },
+                    "description": { "type": "string" },
+                    "post_count": { "type": "integer" },
+                    "parent": { "type": "integer" },
+                    "meta": {
+                        "links": {
+                            "self": { "type": "string" },
+                            "help": { "type": "string" },
+                            "site": { "type": "string" }
+                        }
+                    }
+                }
+            },
+            "attachments": [{ "type": "array" }],
+            "attachment_count": { "type": "integer" },
+            "metadata": [{ "type": "array" }],
+            "meta": {
+                "links": {
+                    "self": { "type": "string" },
+                    "help": { "type": "string" },
+                    "site": { "type": "string" },
+                    "replies": { "type": "string" },
+                    "likes": { "type": "string" }
+                }
+            },
+            "capabilities": {
+                "publish_post": { "type": "boolean" },
+                "delete_post": { "type": "boolean" },
+                "edit_post": { "type": "boolean" }
+            },
+            "other_URLs": [{ "type": "array" }]
+        },
+        "required": ["id", "title", "content"]
+    }
+}
