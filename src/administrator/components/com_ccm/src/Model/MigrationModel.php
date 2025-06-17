@@ -215,30 +215,6 @@ class MigrationModel extends FormModel
                 }
             }
             // error_log("[MigrationModel] Mapped CCM item to target item: " . json_encode($targetItem));
-            // Add required fields for target CMS if needed (example for Joomla)
-            // if ($targetType === 'articles') {
-            //     $targetItem['catid'] = $targetItem['catid'] ?? 2;
-            //     $targetItem['language'] = $targetItem['language'] ?? '*';
-
-            //     if (isset($ccmItem['status'])) {
-            //         switch ($ccmItem['status']) {
-            //             case 'publish':
-            //                 $targetItem['state'] = 1;
-            //                 break;
-            //             case 'draft':
-            //             case 'pending':
-            //             case 'future':
-            //             case 'private':
-            //                 $targetItem['state'] = 0;
-            //                 break;
-            //             case 'trash':
-            //                 $targetItem['state'] = -2;
-            //                 break;
-            //             default:
-            //                 $targetItem['state'] = 0;
-            //         }
-            //     }
-            // }
             if (!empty($targetItem['created'])) {
                 $targetItem['created'] = $this->convertIsoToJoomlaDate($targetItem['created']);
             }
