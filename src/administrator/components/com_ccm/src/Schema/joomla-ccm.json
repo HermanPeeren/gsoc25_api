@@ -25,10 +25,10 @@
         },
         "default": 0
       },
-      "created": "created",
+      "created": {"ccm": "created", "format_date": "Y-m-d H:i:s"},
       "created_by": null,
       "created_by_alias": null,
-      "modified": "modified",
+      "modified": {"ccm": "modified", "format_date": "Y-m-d H:i:s"},
       "modified_by": null,
       "checked_out": null,
       "checked_out_time": null,

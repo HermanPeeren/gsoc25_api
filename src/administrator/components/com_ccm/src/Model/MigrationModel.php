@@ -157,15 +157,15 @@ class MigrationModel extends FormModel
         return $ccmItems;
     }
 
-    private function convertIsoToJoomlaDate($isoDate) {
-        if (empty($isoDate)) {
+    private function formattDate($date, $format) {
+        if (empty($date)) {
             return null;
         }
         try {
-            $dt = new \DateTime($isoDate);
-            return $dt->format('Y-m-d H:i:s');
+            $dt = new \DateTime($date);
+            return $dt->format($format);
         } catch (\Exception $e) {
-            return $isoDate; // fallback to original if parsing fails
+            return $date; // fallback to original if parsing fails
         }
     }
 
@@ -203,8 +203,14 @@ class MigrationModel extends FormModel
                         if (isset($ccmMap['map']) && is_array($ccmMap['map'])) {
                             $value = $ccmMap['map'][$value] ?? ($ccmMap['default'] ?? $value);
                         }
+                        // Handle date format if needed
+                        if (isset($ccmMap['format_date']) && !empty($value)) {
+                            $format = $ccmMap['format_date'];
+                            $value = $this->formattDate($value, $format);
+                        }
                         $targetItem[$targetKey] = $value;
                     } elseif (isset($ccmMap['default'])) {
+                        // If no value found, use default
                         $targetItem[$targetKey] = $ccmMap['default'];
                     }
                 } else {
@@ -215,12 +221,6 @@ class MigrationModel extends FormModel
                 }
             }
             // error_log("[MigrationModel] Mapped CCM item to target item: " . json_encode($targetItem));
-            if (!empty($targetItem['created'])) {
-                $targetItem['created'] = $this->convertIsoToJoomlaDate($targetItem['created']);
-            }
-            if (!empty($targetItem['modified'])) {
-                $targetItem['modified'] = $this->convertIsoToJoomlaDate($targetItem['modified']);
-            }
             $targetItems[] = $targetItem;
         }
 
