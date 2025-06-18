@@ -12,6 +12,19 @@ use Joomla\CMS\Factory;
  */
 class MigrationModel extends FormModel
 {
+    private $migrationIdMap = [
+    // 'categories' => [oldId => newId, ...]
+    // 'users'      => [oldId => newId, ...]
+    // 'media'      => [oldId => newId, ...]
+    ];
+    private $migrationIdMapFile;
+
+    public function __construct($config = [])
+    {
+        parent::__construct($config);
+        $this->migrationIdMapFile = dirname(__DIR__, 1) . '/Schema/migrationIdMap.json';
+    }
+
     public function getItem($pk = null)
     {
         return [];
@@ -196,9 +209,41 @@ class MigrationModel extends FormModel
             foreach ($targetToCcm as $targetKey => $ccmMap) {
                 if (is_array($ccmMap)) {
                     $ccmKey = $ccmMap['ccm'] ?? null;
-                    // Handle mapped value
+                    $type   = $ccmMap['type'] ?? null;
+                    $value  = null;
+
                     if ($ccmKey && isset($ccmItem[$ccmKey])) {
                         $value = $ccmItem[$ccmKey];
+                        // ------------------- Map the Referenced IDs -------------------
+                        if (($type === 'string' || $type === 'integer') && (is_array($value) || is_object($value))) {
+                            $arr = is_object($value) ? (array)$value : $value;
+                            // error_log("[MigrationModel] Extracting value from array/object for target key '$targetKey': " . json_encode($arr));
+                            $first = reset($arr);
+                            // error_log("[MigrationModel] First element extracted: " . json_encode($first));
+                            if (is_array($first) && (isset($first['id']) || isset($first['ID']))) {
+                                $value = $first['id'] ?? $first['ID'];
+                            } elseif (is_array($first)) {
+                                $value = reset($first);
+                            }
+                            // error_log("[MigrationModel] Extracted value from array/object for target key '$targetKey': " . json_encode($value));
+                        }
+
+                        if (($type === 'string' || $type === 'integer') && !empty($value)) {
+                            // error_log("[MigrationModel] Checking for ID mapping for target key '$targetKey' with value: $value");
+                            // error_log('$this->migrationIdMap: ' . json_encode($this->migrationIdMap));
+                            if (file_exists($this->migrationIdMapFile)) {
+                                $this->migrationIdMap = json_decode(file_get_contents($this->migrationIdMapFile), true) ?: [];
+                            }
+                            foreach ($this->migrationIdMap as $entityType => $idMap) {
+                                // error_log("[MigrationModel] Checking ID map for entity type: $entityType");
+                                if (isset($idMap[$value])) {
+                                    // error_log("[MigrationModel] Mapping value '$value' for target key '$targetKey' in type '$targetType' using entity type '$entityType'.");
+                                    $value = $idMap[$value];
+                                    break;
+                                }
+                            }
+                        }
+
                         // Handle value mapping (e.g., status string to int)
                         if (isset($ccmMap['map']) && is_array($ccmMap['map'])) {
                             $value = $ccmMap['map'][$value] ?? ($ccmMap['default'] ?? $value);
@@ -208,11 +253,13 @@ class MigrationModel extends FormModel
                             $format = $ccmMap['format_date'];
                             $value = $this->formattDate($value, $format);
                         }
-                        $targetItem[$targetKey] = $value;
-                    } elseif (isset($ccmMap['default'])) {
-                        // If no value found, use default
-                        $targetItem[$targetKey] = $ccmMap['default'];
+
                     }
+                    if (empty($value) && isset($ccmMap['default'])) {
+                        $value = $ccmMap['default'];
+                    }
+
+                    $targetItem[$targetKey] = $value;
                 } else {
                     // Simple mapping
                     if ($ccmMap && isset($ccmItem[$ccmMap])) {
@@ -243,14 +290,26 @@ class MigrationModel extends FormModel
                 'Accept' => 'application/vnd.api+json',
                 'Content-Type' => 'application/json'
             ]);
-            // error_log("[MigrationModel] Response code: " . $response->code);
+
             if ($response->code === 201 || $response->code === 200) {
                 // error_log("[MigrationModel] Successfully migrated item #" . ($idx + 1));
+                $responseBody = json_decode($response->body, true);
+                $newId = $responseBody['id'] ?? $responseBody["data"]['id'] ?? $responseBody['ID'] ?? $responseBody["data"]['ID'] ?? $responseBody['Id'] ?? $responseBody["data"]['Id'] ?? null;
+                $oldId = $item['id'] ?? $item["data"]['id'] ?? $item['ID'] ?? $item["data"]['ID'] ?? $item['Id'] ?? $item["data"]['Id'] ?? null;
+
+                if ($oldId && $newId) {
+                    if (!isset($this->migrationIdMap[$targetType])) {
+                        $this->migrationIdMap[$targetType] = [];
+                    }
+                    $this->migrationIdMap[$targetType][$oldId] = $newId;
+                }
+                // error_log("[MigrationModel] Mapped item #$idx: oldId = $oldId, newId = $newId");
             }
             else
-                throw new \RuntimeException('Error migrating item: ' . $response->body);
+            throw new \RuntimeException('Error migrating item: ' . $response->body);
         }
-        // error_log("[MigrationModel] Migration to target CMS completed.");
+        // error_log("[MigrationModel] Migration ID full map: " . json_encode($this->migrationIdMap));
+        file_put_contents($this->migrationIdMapFile, json_encode($this->migrationIdMap));
         return true;
     }
 }

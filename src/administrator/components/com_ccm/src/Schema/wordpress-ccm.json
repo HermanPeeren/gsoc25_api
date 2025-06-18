@@ -55,6 +55,22 @@
         "capabilities": null,
         "other_URLs": "urls"
       }
+    },
+    {
+      "type": "categories",
+      "properties": {
+        "ID": "id",
+        "site_ID": null,
+        "name": "title",
+        "description": "description",
+        "slug": "alias",
+        "parent": "parent",
+        "post_count": null,
+        "feed_url": null,
+        "link": "url",
+        "taxonomy": "type",
+        "meta": "meta"
+      }
     }
   ]
 }

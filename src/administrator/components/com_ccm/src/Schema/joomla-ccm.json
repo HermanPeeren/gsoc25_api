@@ -43,15 +43,50 @@
       "language": {"ccm": "language", "default": "*"},
       "access": null,
       "hits": null,
-      "metadata": null,
+      "metadata": "meta",
       "featured": null,
       "note": null,
       "author": "author",
       "categories": "categories",
-      "catid": {"ccm": "catid", "default": 2},
+      "catid": {"ccm": "categories", "default": 2, "type": "string"},
       "tags": "tags"
     },
     "required": ["id", "title", "text"]
+    },
+    {
+      "type": "categories",
+      "properties": {
+        "id": "id",
+        "title": "title",
+        "alias": {
+          "ccm": "alias",
+          "map": {
+            "uncategorized": "uncategorised"
+          }
+        },
+        "type": "type",
+        "note": null,
+        "published": {"ccm": "published", "default": 1},
+        "access": null,
+        "checked_out": null,
+        "checked_out_time": null,
+        "created_user_id": null,
+        "parent_id": "parent",
+        "level": null,
+        "lft": null,
+        "rgt": null,
+        "language": {"ccm": "language", "default": "*"},
+        "description": "description",
+        "language_title": null,
+        "language_image": null,
+        "editor": null,
+        "access_level": null,
+        "author_name": null,
+        "count_trashed": null,
+        "count_unpublished": null,
+        "count_published": null,
+        "count_archived": null
+      }
     }
   ]
 }

@@ -25,6 +25,7 @@
         <!-- options need to be dynamic -->
         <option value="">Select Object Type</option>
         <option value="posts">Posts</option>
+        <option value="categories">Categories</option>
     </field>
     <field
         name="target_cms_object_type"
@@ -35,5 +36,6 @@
     >
         <option value="">Select Object Type</option>
         <option value="articles">Articles</option>
+        <option value="categories">Categories</option>
     </field>
 </form>
