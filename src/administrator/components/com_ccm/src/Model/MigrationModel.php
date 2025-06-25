@@ -170,7 +170,7 @@ class MigrationModel extends FormModel
         return $ccmItems;
     }
 
-    private function formattDate($date, $format) {
+    private function formatDate($date, $format) {
         if (empty($date)) {
             return null;
         }
@@ -251,7 +251,7 @@ class MigrationModel extends FormModel
                         // Handle date format if needed
                         if (isset($ccmMap['format_date']) && !empty($value)) {
                             $format = $ccmMap['format_date'];
-                            $value = $this->formattDate($value, $format);
+                            $value = $this->formatDate($value, $format);
                         }
 
                     }
