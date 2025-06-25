@@ -3,6 +3,7 @@ namespace Reem\Component\CCM\Administrator\Model;
 
 use Joomla\CMS\MVC\Model\FormModel;
 use Joomla\CMS\Http\HttpFactory;
+use \Joomla\CMS\Http\Http;
 use Joomla\CMS\Factory;
 
 /**
@@ -18,11 +19,19 @@ class MigrationModel extends FormModel
     // 'media'      => [oldId => newId, ...]
     ];
     private $migrationIdMapFile;
+    protected $http;
 
-    public function __construct($config = [])
+    public function __construct($config = [], $http = null)
     {
         parent::__construct($config);
         $this->migrationIdMapFile = dirname(__DIR__, 1) . '/Schema/migrationIdMap.json';
+
+        if ($http && !($http instanceof Http)) {
+            $http = null;
+        }
+        $this->http = $http ?: HttpFactory::getHttp();
+
+        error_log("[MigrationModel] Initialized http client: " . get_class($this->http));
     }
 
     public function getItem($pk = null)
@@ -110,8 +119,7 @@ class MigrationModel extends FormModel
 
         // error_log("[MigrationModel] Fetching source items from: $sourceEndpoint");
 
-        $http     = HttpFactory::getHttp();
-        $sourceResponse = $http->get($sourceEndpoint, [
+        $sourceResponse = $this->http->get($sourceEndpoint, [
             'Accept' => 'application/json',
             // Add authentication if needed using $sourceCredentials
         ]);
@@ -282,10 +290,9 @@ class MigrationModel extends FormModel
 
         // error_log("[MigrationModel] Migrating items to target endpoint: $targetEndpoint");
 
-        $http = HttpFactory::getHttp();
         foreach ($ccmToTargetItems as $idx => $item) {
             // error_log("[MigrationModel] Migrating item #" . ($idx + 1) . ": " . json_encode($item));
-            $response = $http->post($targetEndpoint, json_encode($item), [
+            $response = $this->http->post($targetEndpoint, json_encode($item), [
                 'Authorization' => 'Bearer ' . $targetCredentials,
                 'Accept' => 'application/vnd.api+json',
                 'Content-Type' => 'application/json'
