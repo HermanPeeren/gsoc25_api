@@ -18,7 +18,7 @@ class MigrationModel extends FormModel
     // 'users'      => [oldId => newId, ...]
     // 'media'      => [oldId => newId, ...]
     ];
-    private $migrationIdMapFile;
+    protected $migrationIdMapFile;
     protected $http;
 
     public function __construct($config = [], $http = null)
