@@ -3,7 +3,11 @@ describe('CCM Migration Controller', () => {
     cy.doAdministratorLogin();
     cy.visit('/administrator/index.php?option=com_ccm&view=migration');
   });
-  // TODO: need to delete all categories and articles that are migrated from wordpress
+
+  afterEach(() => {
+    cy.task('queryDB', "DELETE FROM nuun4_content");
+    cy.task('queryDB', "DELETE FROM nuun4_categories WHERE id > 2");
+  })
 
   it('has a title', () => {
     cy.get('legend').should('contain.text', 'Migration Settings');
