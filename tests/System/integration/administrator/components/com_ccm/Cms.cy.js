@@ -39,6 +39,6 @@ describe('CCM CMS Admin', () => {
 
   it('can edit a CMS name, with empty url', () => {
     cy.clickToolbarButton('Save');
-    cy.checkForSystemMessage(/The form cannot be submitted as it's missing required data./i);
+    cy.checkForSystemMessage("The form cannot be submitted as it's missing required data.");
   });
 });

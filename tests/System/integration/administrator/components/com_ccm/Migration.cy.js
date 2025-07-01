@@ -50,6 +50,6 @@ describe('CCM Migration Controller', () => {
     cy.get('[name="jform[target_cms]"]').select('Joomla');
     cy.get('[name="jform[target_cms_object_type]"]').select('Articles');
     cy.get('button[type="submit"]').contains("Apply Migration").click();
-    cy.checkForSystemMessage(/Migration failed/i);
+    cy.checkForSystemMessage("Migration failed");
   });
 });
