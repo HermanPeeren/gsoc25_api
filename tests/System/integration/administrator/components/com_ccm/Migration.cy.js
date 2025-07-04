@@ -5,8 +5,8 @@ describe('CCM Migration Controller', () => {
   });
 
   afterEach(() => {
-    cy.task('queryDB', "DELETE FROM nuun4_content");
-    cy.task('queryDB', "DELETE FROM nuun4_categories WHERE id > 2");
+    cy.task('queryDB', "DELETE FROM #__content");
+    cy.task('queryDB', "DELETE FROM #__categories WHERE id > 2");
   })
 
   it('has a title', () => {
