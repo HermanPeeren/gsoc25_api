@@ -44,7 +44,36 @@ The component will automatically create the required database tables upon instal
    - **URL**: Base URL of the source CMS
    - **Credentials**: API keys or authentication details
 
-### 2. Running a Migration
+### 2. Obtaining CMS Credentials
+
+Before you can migrate content, you need to obtain the proper API credentials for each CMS:
+
+#### For WordPress
+1. **Install WordPress REST API Plugin** (if not already available):
+   - Go to your WordPress admin panel
+   - Navigate to **Plugins > Add New**
+   - Search for "Application Passwords" or "REST API Authentication"
+   - Install and activate the plugin
+
+2. **Generate Application Password**:
+   - Go to **Users > Profile** in WordPress admin
+   - Scroll down to **Application Passwords** section
+   - Enter a name for the application (e.g., "CCM Migration")
+   - Click **Add New Application Password**
+   - Copy the generated password (it won't be shown again)
+
+#### For Joomla
+1. **Create API Token**:
+   - Go to **System > Manage > API Tokens**
+   - Click **New** to create a new token
+   - Enter a **Title** for the token
+   - Select appropriate **User** (should have necessary permissions)
+   - Click **Save**
+   - Copy the generated token
+
+> **Security Note**: Always use dedicated API credentials with minimal required permissions. Never use your main administrator password for API access.
+
+### 3. Running a Migration
 
 1. Navigate to **Components > CCM > Migration**
 2. Select source and target CMS
@@ -59,7 +88,7 @@ The component will automatically create the required database tables upon instal
 4. Click **Apply Migration**
 5. Monitor progress in real-time
 
-### 3. Migration Process
+### 4. Migration Process
 
 The migration follows these steps:
 
