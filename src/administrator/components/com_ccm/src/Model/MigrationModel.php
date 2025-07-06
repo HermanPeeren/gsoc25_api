@@ -5,6 +5,7 @@ use Joomla\CMS\MVC\Model\FormModel;
 use Joomla\CMS\Http\HttpFactory;
 use \Joomla\CMS\Http\Http;
 use Joomla\CMS\Factory;
+use Reem\Component\CCM\Administrator\Helper\AuthenticationHelper;
 
 /**
  * Class Migration
@@ -116,13 +117,19 @@ class MigrationModel extends FormModel
     private function getSourceItems($sourceCms, $sourceType) {
         $sourceUrl = $sourceCms->url;
         $sourceEndpoint = $sourceUrl . '/' . $sourceType;
+        $sourceAuthentication = $sourceCms->authentication;
 
-        // error_log("[MigrationModel] Fetching source items from: $sourceEndpoint");
-
-        $sourceResponse = $this->http->get($sourceEndpoint, [
+        $headers = [
             'Accept' => 'application/json',
-            // Add authentication if needed using $sourceCredentials
-        ]);
+        ];
+
+        if ($sourceAuthentication) {
+            $authHeaders = AuthenticationHelper::parseAuthentication($sourceAuthentication);
+            $headers = array_merge($headers, $authHeaders);
+            error_log("[MigrationModel] Using authentication headers: " . json_encode($authHeaders));
+        }
+
+        $sourceResponse = $this->http->get($sourceEndpoint, $headers);
         // error_log("[MigrationModel] Source response code: " . $sourceResponse->code);
         // error_log("[MigrationModel] Source response body: " . $sourceResponse->body);
 
@@ -286,17 +293,22 @@ class MigrationModel extends FormModel
     private function migrateItemsToTargetCms($targetCms, $targetType, $ccmToTargetItems) {
         $targetUrl         = $targetCms->url;
         $targetEndpoint    = $targetUrl . '/' . $targetType;
-        $targetCredentials = $targetCms->credentials;
+        $targetAuthentication = $targetCms->authentication;
 
-        // error_log("[MigrationModel] Migrating items to target endpoint: $targetEndpoint");
+        $headers = [
+            'Accept' => 'application/vnd.api+json',
+            'Content-Type' => 'application/json'
+        ];
+
+        if ($targetAuthentication) {
+            $authHeaders = AuthenticationHelper::parseAuthentication($targetAuthentication);
+            $headers = array_merge($headers, $authHeaders);
+            error_log("[MigrationModel] Using authentication headers: " . json_encode($authHeaders));
+        }
 
         foreach ($ccmToTargetItems as $idx => $item) {
             // error_log("[MigrationModel] Migrating item #" . ($idx + 1) . ": " . json_encode($item));
-            $response = $this->http->post($targetEndpoint, json_encode($item), [
-                'Authorization' => 'Bearer ' . $targetCredentials,
-                'Accept' => 'application/vnd.api+json',
-                'Content-Type' => 'application/json'
-            ]);
+            $response = $this->http->post($targetEndpoint, json_encode($item), $headers);
 
             if ($response->code === 201 || $response->code === 200) {
                 // error_log("[MigrationModel] Successfully migrated item #" . ($idx + 1));

@@ -14,9 +14,12 @@
         required="true"
     />
     <field
-        name="credentials"
-        type="text"
-        label="COM_CCM_CONFIG_CREDENTIALS_LABEL"
+        name="authentication"
+        type="textarea"
+        label="COM_CCM_CONFIG_AUTHENTICATION_LABEL"
+        description="COM_CCM_CONFIG_AUTHENTICATION_DESC"
         required="false"
+        rows="8"
+        cols="50"
     />
 </form>

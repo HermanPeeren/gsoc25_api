@@ -5,7 +5,7 @@
     <author>Reem</author>
     <authorEmail>reem.atalah1@gmail.com</authorEmail>
     <license>GNU General Public License version 2 or later; see LICENSE.txt</license>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <description>COM_CCM_DESCRIPTION</description>
     <namespace path="src">Reem\Component\CCM</namespace>
     <install>
@@ -18,6 +18,11 @@
             <file driver="mysql" charset="utf8">sql/uninstall.mysql.utf8.sql</file>
         </sql>
     </uninstall>
+    <update>
+        <sql>
+            <file driver="mysql" charset="utf8">sql/updates/mysql/1.0.1.sql</file>
+        </sql>
+    </update>
     <api>
         <files folder="api/components/com_ccm">
             <folder>src</folder>
