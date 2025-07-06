@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extension type="package" method="upgrade">
+    <name>CCM Package</name>
+    <packagename>ccm</packagename>
+    <version>__DEPLOY_VERSION__</version>
+    <url>https://github.com/username/gsoc25_api</url>
+    <packager>Reem</packager>
+    <packagerurl>https://github.com/username/gsoc25_api</packagerurl>
+    <description><![CDATA[
+        <h2>Content Creation Management (CCM) Component for Joomla</h2>
+        <p>This package contains the CCM component for Joomla 4.4+</p>
+    ]]></description>
+
+    <files>
+        <file type="component" id="com_ccm">com_ccm.zip</file>
+    </files>
+
+    <blockChildUninstall>true</blockChildUninstall>
+
+    <scriptfile>script.php</scriptfile>
+
+    <updateservers>
+        <server type="extension" priority="1" name="CCM Update">https://github.com/username/gsoc25_api/releases/latest/download/update.xml</server>
+    </updateservers>
+</extension>

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extension type="component" method="upgrade">
+    <name>COM_CCM</name>
+    <creationDate>2025-07-06</creationDate>
+    <author>Reem</author>
+    <authorEmail>reem@example.com</authorEmail>
+    <authorUrl>https://github.com/username/gsoc25_api</authorUrl>
+    <copyright>Copyright (C) 2025 Reem. All rights reserved.</copyright>
+    <license>GNU General Public License version 2 or later; see LICENSE.txt</license>
+    <version>__DEPLOY_VERSION__</version>
+    <description>COM_CCM_DESCRIPTION</description>
+
+    <install>
+        <sql>
+            <file driver="mysql" charset="utf8">sql/install.mysql.utf8.sql</file>
+        </sql>
+    </install>
+
+    <uninstall>
+        <sql>
+            <file driver="mysql" charset="utf8">sql/uninstall.mysql.utf8.sql</file>
+        </sql>
+    </uninstall>
+
+    <update>
+        <schemas>
+            <schemapath type="mysql">sql/updates/mysql</schemapath>
+        </schemas>
+    </update>
+
+    <files folder="administrator/components/com_ccm">
+        <filename>ccm.xml</filename>
+        <filename>access.xml</filename>
+        <filename>config.xml</filename>
+        <folder>forms</folder>
+        <folder>language</folder>
+        <folder>services</folder>
+        <folder>sql</folder>
+        <folder>src</folder>
+        <folder>tmpl</folder>
+    </files>
+
+    <administration>
+        <menu img="components/com_ccm/images/icon-16-ccm.png">COM_CCM_MENU</menu>
+        <files folder="administrator/components/com_ccm">
+            <filename>ccm.xml</filename>
+            <filename>access.xml</filename>
+            <filename>config.xml</filename>
+            <folder>forms</folder>
+            <folder>language</folder>
+            <folder>services</folder>
+            <folder>sql</folder>
+            <folder>src</folder>
+            <folder>tmpl</folder>
+        </files>
+    </administration>
+
+    <scriptfile>script.php</scriptfile>
+
+    <updateservers>
+        <server type="extension" priority="1" name="CCM Updates">
+            https://github.com/username/gsoc25_api/releases/latest/download/update.xml
+        </server>
+    </updateservers>
+</extension>
