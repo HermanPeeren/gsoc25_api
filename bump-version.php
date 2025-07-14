@@ -7,8 +7,8 @@
  * Example: php bump-version.php 1.0.1
  *
  * @package     CCM
- * @author      Reem
- * @copyright   2025 Reem
+ * @author      Joomla! Project
+ * @copyright   2025 Joomla! Project
  * @license     GNU General Public License version 2 or later
  */
 

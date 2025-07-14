@@ -2,8 +2,7 @@
 <extension type="component" method="upgrade">
     <name>COM_CCM</name>
     <creationDate>2025-07-06</creationDate>
-    <author>Reem</author>
-    <authorEmail>reem@example.com</authorEmail>
+    <author>Joomla! Project</author>
     <authorUrl>https://github.com/username/gsoc25_api</authorUrl>
     <copyright>Copyright (C) 2025 Reem. All rights reserved.</copyright>
     <license>GNU General Public License version 2 or later; see LICENSE.txt</license>

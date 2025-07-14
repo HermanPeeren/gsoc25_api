@@ -2,8 +2,8 @@
 <extension type="component" method="upgrade">
     <name>COM_CCM</name>
     <creationDate>2025-05-14</creationDate>
-    <author>Reem</author>
-    <authorEmail>reem.atalah1@gmail.com</authorEmail>
+    <author>Joomla! Project</author>
+    <authorEmail>joomla@example.com</authorEmail>
     <license>GNU General Public License version 2 or later; see LICENSE.txt</license>
     <version>1.0.1</version>
     <description>COM_CCM_DESCRIPTION</description>

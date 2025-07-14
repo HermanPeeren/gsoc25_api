@@ -3,7 +3,7 @@
  * @package     CCM Package
  * @subpackage  Installation Script
  *
- * @copyright   Copyright (C) 2025 Reem. All rights reserved.
+ * @copyright   Copyright (C) 2025 Joomla! Project. All rights reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 

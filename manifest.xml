@@ -4,7 +4,7 @@
     <packagename>ccm</packagename>
     <version>__DEPLOY_VERSION__</version>
     <url>https://github.com/username/gsoc25_api</url>
-    <packager>Reem</packager>
+    <packager>Joomla!</packager>
     <packagerurl>https://github.com/username/gsoc25_api</packagerurl>
     <description><![CDATA[
         <h2>Content Creation Management (CCM) Component for Joomla</h2>
