@@ -18,7 +18,7 @@
         type="textarea"
         label="COM_CCM_CONFIG_AUTHENTICATION_LABEL"
         description="COM_CCM_CONFIG_AUTHENTICATION_DESC"
-        required="false"
+        required="true"
         rows="8"
         cols="50"
     />
