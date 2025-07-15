@@ -135,10 +135,10 @@ class MigrationModel extends FormModel
 
         $sourceResponseBody = json_decode($sourceResponse->body, true);
 
-        if (isset($sourceResponseBody[$sourceType]) && is_array($sourceResponseBody[$sourceType])) {
+        if (is_array($sourceResponseBody) && isset($sourceResponseBody[$sourceType]) && is_array($sourceResponseBody[$sourceType])) {
             // error_log("[MigrationModel] Found items under key: $sourceType");
             return $sourceResponseBody[$sourceType];
-        } elseif (isset($sourceResponseBody['items']) && is_array($sourceResponseBody['items'])) {
+        } elseif (is_array($sourceResponseBody) && isset($sourceResponseBody['items']) && is_array($sourceResponseBody['items'])) {
             // error_log("[MigrationModel] Found items under key: items");
             return $sourceResponseBody['items'];
         } elseif (is_array($sourceResponseBody)) {
@@ -287,6 +287,7 @@ class MigrationModel extends FormModel
         }
 
         // error_log("[MigrationModel] Converted " . count($targetItems) . " CCM items to target CMS format.");
+        // error_log("[MigrationModel] Target items after conversion from CCM: " . json_encode($targetItems));
         return $targetItems;
     }
 
@@ -309,6 +310,7 @@ class MigrationModel extends FormModel
         foreach ($ccmToTargetItems as $idx => $item) {
             // error_log("[MigrationModel] Migrating item #" . ($idx + 1) . ": " . json_encode($item));
             $response = $this->http->post($targetEndpoint, json_encode($item), $headers);
+            // error_log("[MigrationModel] Response for item #" . ($idx + 1) . ": " . json_encode($response));
 
             if ($response->code === 201 || $response->code === 200) {
                 // error_log("[MigrationModel] Successfully migrated item #" . ($idx + 1));
