@@ -317,12 +317,14 @@ class MigrationModel extends FormModel
         $targetEndpoint       = $targetUrl . '/' . $endpoint;
 
         // Create migration folder name once for this entire migration batch
-        $sourceCmsName = $sourceCms ? strtolower($sourceCms->name) : 'unknown';
-        $migrationFolderName_ForMedia = null;
         if ($targetType === 'media') {
-            $dateTimeFolder = date('Y_m_d_H_i_s'); // e.g., "2025_07_19_14_30_45"
-            $migrationFolderName = "migration/{$sourceCmsName}/{$dateTimeFolder}";
-            error_log("[MigrationModel] Using migration folder: $migrationFolderName");
+            $sourceCmsName = $sourceCms ? strtolower($sourceCms->name) : 'unknown';
+            $migrationFolderName_ForMedia = null;
+            if ($targetType === 'media') {
+                $dateTimeFolder = date('Y_m_d_H_i_s'); // e.g., "2025_07_19_14_30_45"
+                $migrationFolderName_ForMedia = "migration/{$sourceCmsName}/{$dateTimeFolder}";
+                error_log("[MigrationModel] Using migration folder: $migrationFolderName_ForMedia");
+            }
         }
 
         foreach ($ccmToTargetItems as $idx => $item) {
@@ -341,6 +343,14 @@ class MigrationModel extends FormModel
 
             if ($targetType === 'media') {
                 error_log("[MigrationModel] Using JSON media upload for item #" . ($idx + 1));
+                $sourceUrl = $item['source_url'] ?? $item['URL'] ?? $item['url'] ?? '';
+                if (!MigrationHelper::isSupportedFileType($sourceUrl)) {
+                    $fileName = basename(parse_url($sourceUrl, PHP_URL_PATH));
+                    $extension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+                    error_log("[MigrationModel] Skipping unsupported file type: $fileName (.$extension)");
+                    continue; // Skip this item and move to next
+                }
+
                 $uploadData = MigrationHelper::handleMediaUpload($item, $sourceCmsName, $migrationFolderName_ForMedia);
                 $headers['Content-Type'] = 'application/json';
                 error_log("[MigrationModel] headers: " . json_encode($headers));

@@ -128,4 +128,36 @@ class MigrationHelper
         
         return $uploadData;
     }
+
+    /**
+     * Check if file type is supported for media upload
+     */
+    public static function isSupportedFileType($sourceUrl) {
+        if (empty($sourceUrl)) {
+            return false;
+        }
+        
+        $fileName = basename(parse_url($sourceUrl, PHP_URL_PATH));
+        $extension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+        
+        // Define supported file extensions for media upload
+        $supportedExtensions = [
+            'jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp', 'ico',
+            
+            'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx',
+            
+            'zip', 'rar', '7z', 'tar', 'gz',
+            
+            'mp3', 'wav', 'ogg', 'flac',
+            
+            'mp4', 'avi', 'mov', 'wmv', 'flv', 'webm',
+            
+            'html', 'htm', 'css', 'js', 'json', 'xml'
+            
+            // Note: txt, csv, and other plain text formats are excluded
+            // as they may not be suitable for media library
+        ];
+        
+        return in_array($extension, $supportedExtensions);
+    }
 }
