@@ -3,6 +3,9 @@
   [
     {
     "type": "articles",
+    "config": {
+      "endpoint": "content/articles"
+    },
     "properties": {
       "id": "id",
       "asset_id": null,
@@ -55,6 +58,9 @@
     },
     {
       "type": "categories",
+      "config": {
+        "endpoint": "content/categories"
+      },
       "properties": {
         "id": "id",
         "title": "title",
@@ -87,6 +93,60 @@
         "count_published": null,
         "count_archived": null
       }
+    },
+    {
+      "type": "media",
+      "config": {
+        "endpoint": "media/files",
+        "content_type": "application/json"
+      },
+      "properties": {
+        "id": "id",
+        "title": "title",
+        "alt_text": "alt",
+        "caption": "caption",
+        "description": "description",
+        "media_type": "type",
+        "mime_type": "mime_type",
+        "extension": "extension",
+        "url": "url",
+        "thumbnails": "thumbnails",
+        "post_ID": "post_id",
+        "date": {"ccm": "date", "format_date": "Y-m-d H:i:s"},
+        "date_gmt": {"ccm": "date_gmt", "format_date": "Y-m-d H:i:s"},
+        "modified": {"ccm": "modified", "format_date": "Y-m-d H:i:s"},
+        "modified_gmt": {"ccm": "modified_gmt", "format_date": "Y-m-d H:i:s"},
+        "slug": "slug",
+        "status": {
+          "ccm": "status",
+          "map": {
+            "publish": "inherit",
+            "draft": "inherit",
+            "private": "private"
+          },
+          "default": "inherit"
+        },
+        "guid": "guid",
+        "author_id": "author_id",
+        "file": "file",
+        "media_details": {
+          "width": "width",
+          "height": "height",
+          "file": "file",
+          "sizes": "sizes",
+          "filesize": "filesize"
+        },
+        "height": "height",
+        "width": "width",
+        "length": "length",
+        "videopress_guid": "videopress_guid",
+        "videopress_processing_done": "videopress_processing_done",
+        "post": "post_id",
+        "link": "link",
+        "path": "path",
+        "folder": "folder"
+      },
+      "required": ["id", "mime_type"]
     }
   ]
 }

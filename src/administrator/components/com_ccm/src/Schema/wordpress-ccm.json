@@ -71,6 +71,36 @@
         "taxonomy": "type",
         "meta": "meta"
       }
+    },
+    {
+      "type": "media",
+      "properties": {
+        "ID": "id",
+        "title": "title",
+        "alt": "alt",
+        "caption": "caption",
+        "description": "description",
+        "file": "file",
+        "media_type": "type",
+        "mime_type": "mime_type",
+        "extension": "extension",
+        "URL": "url",
+        "thumbnails": "thumbnails",
+        "post_ID": "post_id",
+        "date": "date",
+        "date_gmt": "date_gmt",
+        "modified": "modified",
+        "modified_gmt": "modified_gmt",
+        "author_ID": "author_id",
+        "media_details": "media_details",
+        "guid": "guid",
+        "meta": "meta",
+        "height": "height",
+        "width": "width",
+        "length": "length",
+        "videopress_guid": "videopress_guid",
+        "videopress_processing_done": "videopress_processing_done"
+      }
     }
   ]
 }

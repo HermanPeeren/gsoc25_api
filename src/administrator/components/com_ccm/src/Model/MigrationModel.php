@@ -5,7 +5,7 @@ use Joomla\CMS\MVC\Model\FormModel;
 use Joomla\CMS\Http\HttpFactory;
 use \Joomla\CMS\Http\Http;
 use Joomla\CMS\Factory;
-use Reem\Component\CCM\Administrator\Helper\AuthenticationHelper;
+use Reem\Component\CCM\Administrator\Helper\MigrationHelper;
 
 /**
  * Class Migration
@@ -95,36 +95,56 @@ class MigrationModel extends FormModel
         $db->setQuery($query);
         $targetCms = $db->loadObject();
 
-        // if (!$sourceCms || !$targetCms) {
-        //     throw new \RuntimeException('Invalid source or target CMS.');
-        // }
+        // error_log("[MigrationModel] Source CMS: {$sourceCms->name} ({$sourceCms->url})");
+        // error_log("[MigrationModel] Target CMS: {$targetCms->name} ({$targetCms->url})");
+        // error_log("[MigrationModel] Migration: $sourceType -> $targetType");
 
         $sourceItems = $this->getSourceItems($sourceCms, $sourceType);
-        // if (empty($sourceItems)) {
-        //     throw new \RuntimeException('No items found in source CMS.');
-        // }
+        // error_log("[MigrationModel] Retrieved " . count($sourceItems) . " items from source");
+        
         $sourceToCcmItems = $this->convertSourceCmsToCcm($sourceCms, $sourceItems, $sourceType);
-        // if (empty($sourceToCcmItems)) {
-        //     throw new \RuntimeException('No items found to migrate from source CMS.');
-        // }
-        $ccmToTargetItems = $this->convertCcmToTargetCms($sourceToCcmItems, $targetCms, $targetType);
+        // error_log("[MigrationModel] Converted " . count($sourceToCcmItems) . " items to CCM format");
+        
+        $result           = $this->convertCcmToTargetCms($sourceToCcmItems, $targetCms, $targetType);
+        $config           = $result['config'];
+        $ccmToTargetItems = $result['items'];
+        
+        // error_log("[MigrationModel] Converted " . count($ccmToTargetItems) . " items to target format");
+        // error_log("[MigrationModel] Using config: " . json_encode($config));
 
-        $targetMigrationStatus = $this->migrateItemsToTargetCms($targetCms, $targetType, $ccmToTargetItems);
+        $targetMigrationStatus = $this->migrateItemsToTargetCms($targetCms, $targetType, $ccmToTargetItems, $config, $sourceCms);
 
         return $targetMigrationStatus;
     }
 
     private function getSourceItems($sourceCms, $sourceType) {
         $sourceUrl = $sourceCms->url;
-        $sourceEndpoint = $sourceUrl . '/' . $sourceType;
         $sourceAuthentication = $sourceCms->authentication;
+
+        // Load source schema to get endpoint info
+        $sourceSchemaFile = strtolower($sourceCms->name) . '-ccm.json';        
+        $schemaPath = dirname(__DIR__, 1) . '/Schema/';
+        $schema = json_decode(file_get_contents($schemaPath . $sourceSchemaFile), true);
+
+        // Find the endpoint for this source type
+        $endpoint = $sourceType;
+        if (isset($schema['ContentItem']) && is_array($schema['ContentItem'])) {
+            foreach ($schema['ContentItem'] as $contentItem) {
+                if (isset($contentItem['type']) && $contentItem['type'] === $sourceType) {
+                    $endpoint = $contentItem['config']['endpoint'] ?? $sourceType;
+                    break;
+                }
+            }
+        }
+
+        $sourceEndpoint = $sourceUrl . '/' . $endpoint;
 
         $headers = [
             'Accept' => 'application/json',
         ];
 
         if ($sourceAuthentication) {
-            $authHeaders = AuthenticationHelper::parseAuthentication($sourceAuthentication);
+            $authHeaders = MigrationHelper::parseAuthentication($sourceAuthentication);
             $headers = array_merge($headers, $authHeaders);
             error_log("[MigrationModel] Using authentication headers: " . json_encode($authHeaders));
         }
@@ -185,18 +205,6 @@ class MigrationModel extends FormModel
         return $ccmItems;
     }
 
-    private function formatDate($date, $format) {
-        if (empty($date)) {
-            return null;
-        }
-        try {
-            $dt = new \DateTime($date);
-            return $dt->format($format);
-        } catch (\Exception $e) {
-            return $date; // fallback to original if parsing fails
-        }
-    }
-
     private function convertCcmToTargetCms($ccmItems, $targetCms, $targetType) {
         $targetSchemaFile = strtolower($targetCms->name) . '-ccm.json';
         $schemaPath       = dirname(__DIR__, 1) . '/Schema/';
@@ -204,10 +212,14 @@ class MigrationModel extends FormModel
 
         // Find the ContentItem with the matching type
         $targetToCcm = [];
+        $config = [];
         if (isset($ccmToTarget['ContentItem']) && is_array($ccmToTarget['ContentItem'])) {
+            // error_log("[MigrationModel] Looking for mapping for target type: $targetType");
             foreach ($ccmToTarget['ContentItem'] as $contentItem) {
+                // error_log("[MigrationModel] Content item type: " . ($contentItem['type'] ?? 'undefined'));
                 if (isset($contentItem['type']) && $contentItem['type'] === $targetType && isset($contentItem['properties'])) {
                     $targetToCcm = $contentItem['properties'];
+                    $config = $contentItem['config'] ?? [];
                     // error_log("[MigrationModel] Found mapping for target type: $targetType");
                     break;
                 }
@@ -266,7 +278,7 @@ class MigrationModel extends FormModel
                         // Handle date format if needed
                         if (isset($ccmMap['format_date']) && !empty($value)) {
                             $format = $ccmMap['format_date'];
-                            $value = $this->formatDate($value, $format);
+                            $value = MigrationHelper::formatDate($value, $format);
                         }
 
                     }
@@ -288,48 +300,86 @@ class MigrationModel extends FormModel
 
         // error_log("[MigrationModel] Converted " . count($targetItems) . " CCM items to target CMS format.");
         // error_log("[MigrationModel] Target items after conversion from CCM: " . json_encode($targetItems));
-        return $targetItems;
+        return [
+            'items' => $targetItems,
+            'config' => $config
+        ];
     }
 
-    private function migrateItemsToTargetCms($targetCms, $targetType, $ccmToTargetItems) {
-        $targetUrl         = $targetCms->url;
-        $targetEndpoint    = $targetUrl . '/' . $targetType;
-        $targetAuthentication = $targetCms->authentication;
+    private function migrateItemsToTargetCms($targetCms, $targetType, $ccmToTargetItems, $config = [], $sourceCms = null) {
+        // error_log("[MigrationModel] Starting migration to target CMS: {$targetCms->name}");
+        // error_log("[MigrationModel] Target type: $targetType, Items count: " . count($ccmToTargetItems));
+        // error_log("[MigrationModel] Config: " . json_encode($config));
+        
+        $targetAuthentication = $targetCms->authentication;        
+        $endpoint             = $config['endpoint'] ?? $targetType;
+        $targetUrl            = $targetCms->url;
+        $targetEndpoint       = $targetUrl . '/' . $endpoint;
 
-        $headers = [
-            'Accept' => 'application/vnd.api+json',
-            'Content-Type' => 'application/json'
-        ];
-
-        if ($targetAuthentication) {
-            $authHeaders = AuthenticationHelper::parseAuthentication($targetAuthentication);
-            $headers = array_merge($headers, $authHeaders);
-            error_log("[MigrationModel] Using authentication headers: " . json_encode($authHeaders));
+        // Create migration folder name once for this entire migration batch
+        $sourceCmsName = $sourceCms ? strtolower($sourceCms->name) : 'unknown';
+        $migrationFolderName_ForMedia = null;
+        if ($targetType === 'media') {
+            $dateTimeFolder = date('Y_m_d_H_i_s'); // e.g., "2025_07_19_14_30_45"
+            $migrationFolderName = "migration/{$sourceCmsName}/{$dateTimeFolder}";
+            error_log("[MigrationModel] Using migration folder: $migrationFolderName");
         }
 
         foreach ($ccmToTargetItems as $idx => $item) {
-            // error_log("[MigrationModel] Migrating item #" . ($idx + 1) . ": " . json_encode($item));
-            $response = $this->http->post($targetEndpoint, json_encode($item), $headers);
-            // error_log("[MigrationModel] Response for item #" . ($idx + 1) . ": " . json_encode($response));
+            error_log("[MigrationModel] Processing item #" . ($idx + 1) . "/" . count($ccmToTargetItems));
+            error_log("[MigrationModel] Item data: " . json_encode($item, JSON_UNESCAPED_SLASHES));
+            
+            $headers = [
+                'Accept' => 'application/vnd.api+json',
+            ];
+
+            if ($targetAuthentication) {
+                $authHeaders = MigrationHelper::parseAuthentication($targetAuthentication);
+                $headers = array_merge($headers, $authHeaders);
+                error_log("[MigrationModel] Using authentication headers: " . json_encode($authHeaders));
+            }
+
+            if ($targetType === 'media') {
+                error_log("[MigrationModel] Using JSON media upload for item #" . ($idx + 1));
+                $uploadData = MigrationHelper::handleMediaUpload($item, $sourceCmsName, $migrationFolderName_ForMedia);
+                $headers['Content-Type'] = 'application/json';
+                error_log("[MigrationModel] headers: " . json_encode($headers));
+                error_log("[MigrationModel] targetEndpoint: $targetEndpoint");
+                $response = $this->http->post($targetEndpoint, json_encode($uploadData), $headers);
+            } else {
+                error_log("[MigrationModel] Using JSON POST for item #" . ($idx + 1));
+                $headers['Content-Type'] = 'application/json';
+                $requestBody = json_encode($item);
+                error_log("[MigrationModel] Request body: " . $requestBody);
+                $response = $this->http->post($targetEndpoint, $requestBody, $headers);
+            }
+
+            error_log("[MigrationModel] Response for item #" . ($idx + 1) . " - Code: {$response->code}, Body: " . substr($response->body, 0, 1000));
 
             if ($response->code === 201 || $response->code === 200) {
-                // error_log("[MigrationModel] Successfully migrated item #" . ($idx + 1));
+                error_log("[MigrationModel] Successfully migrated item #" . ($idx + 1));
                 $responseBody = json_decode($response->body, true);
                 $newId = $responseBody['id'] ?? $responseBody["data"]['id'] ?? $responseBody['ID'] ?? $responseBody["data"]['ID'] ?? $responseBody['Id'] ?? $responseBody["data"]['Id'] ?? null;
                 $oldId = $item['id'] ?? $item["data"]['id'] ?? $item['ID'] ?? $item["data"]['ID'] ?? $item['Id'] ?? $item["data"]['Id'] ?? null;
+
+                error_log("[MigrationModel] ID extraction - Old ID: $oldId, New ID: $newId");
 
                 if ($oldId && $newId) {
                     if (!isset($this->migrationIdMap[$targetType])) {
                         $this->migrationIdMap[$targetType] = [];
                     }
                     $this->migrationIdMap[$targetType][$oldId] = $newId;
+                    error_log("[MigrationModel] Added to ID map: $targetType[$oldId] = $newId");
+                } else {
+                    error_log("[MigrationModel] Warning: Could not extract old/new IDs for mapping");
                 }
-                // error_log("[MigrationModel] Mapped item #$idx: oldId = $oldId, newId = $newId");
+            } else {
+                error_log("[MigrationModel] Migration failed for item #" . ($idx + 1) . " - HTTP {$response->code}");
+                error_log("[MigrationModel] Error response body: " . $response->body);
+                throw new \RuntimeException('Error migrating item #' . ($idx + 1) . ' - HTTP ' . $response->code . ': ' . $response->body);
             }
-            else
-            throw new \RuntimeException('Error migrating item: ' . $response->body);
         }
-        // error_log("[MigrationModel] Migration ID full map: " . json_encode($this->migrationIdMap));
+        error_log("[MigrationModel] Migration completed. Final ID map: " . json_encode($this->migrationIdMap));
         file_put_contents($this->migrationIdMapFile, json_encode($this->migrationIdMap));
         return true;
     }
