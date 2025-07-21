@@ -74,11 +74,11 @@ Before you can migrate content, you need to obtain the proper API credentials fo
 2. Select source and target CMS
 3. Choose content types to migrate:
    - Categories
-   - Media files *(future work)*
-   - Users *(future work)*
    - Articles/Posts
+   - Media files
+   - Users *(future work)*
 
-> **Note:** It is important to migrate the referenced items first. For example, we need to migrate **categories first**, as articles/posts reference categories. Migrating articles before their referenced categories exist may result in missing or incorrect category assignments. Always follow this order: **Categories → Media files → Users → Articles/Posts**.
+> **Note:** It is important to migrate the referenced items first. For example, we need to migrate **categories first**, as articles/posts reference categories. Migrating articles before their referenced categories exist may result in missing or incorrect category assignments. Always follow this order: **Categories → Articles/Posts → Media files → Users**.
 
 4. Click **Apply Migration**
 5. Monitor progress in real-time
