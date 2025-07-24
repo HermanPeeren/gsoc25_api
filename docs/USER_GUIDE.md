@@ -78,7 +78,7 @@ Before you can migrate content, you need to obtain the proper API credentials fo
    - Media files
    - Users *(future work)*
 
-> **Note:** It is important to migrate the referenced items first. For example, we need to migrate **categories first**, as articles/posts reference categories. Migrating articles before their referenced categories exist may result in missing or incorrect category assignments. Always follow this order: **Categories → Articles/Posts → Media files → Users**.
+> **Note:** It is important to migrate the referenced items first. For example, we need to migrate **categories first**, as articles/posts reference categories. Migrating articles before their referenced categories exist may result in missing or incorrect category assignments. Always follow this order: **Categories → Media files → Users → Articles/Posts**.
 
 4. Click **Apply Migration**
 5. Monitor progress in real-time
