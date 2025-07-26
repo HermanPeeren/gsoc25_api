@@ -16,19 +16,51 @@ class MigrationController extends BaseController
 
         $sourceCmsId = isset($data['source_cms']) ? (int) $data['source_cms'] : 0;
         $targetCmsId = isset($data['target_cms']) ? (int) $data['target_cms'] : 0;
-        $sourceType  = isset($data['source_cms_object_type']) ? $data['source_cms_object_type'] : '';
-        $targetType  = isset($data['target_cms_object_type']) ? $data['target_cms_object_type'] : '';
 
         /** @var MigrationModel $model */
         $model = $this->getModel();
+        
         try {
-            $targetMigrationStatus = $model->migrate($sourceCmsId, $targetCmsId, $sourceType, $targetType);
-            if (!$targetMigrationStatus) {
-                $this->setMessage('Migration failed: Target CMS migration status is false.', 'error');
-                $this->setRedirect('index.php?option=com_ccm&view=migration');
-                return;
+            // Define migration mappings in the recommended order
+            // Categories first (referenced by other content), then media, then content items
+            $migrationMappings = [
+                ['source' => 'categories', 'target' => 'categories'],
+                ['source' => 'media', 'target' => 'media'],
+                ['source' => 'posts', 'target' => 'articles'],
+            ];
+
+            $successfulMigrations = [];
+            $failedMigrations = [];
+
+            // Loop through all migration mappings in the recommended order
+            foreach ($migrationMappings as $mapping) {
+                $sourceType = $mapping['source'];
+                $targetType = $mapping['target'];
+                
+                try {
+                    $migrationStatus = $model->migrate($sourceCmsId, $targetCmsId, $sourceType, $targetType);
+                    if ($migrationStatus) {
+                        $successfulMigrations[] = "$sourceType → $targetType";
+                    } else {
+                        $failedMigrations[] = "$sourceType → $targetType (status false)";
+                    }
+                } catch (\Exception $e) {
+                    $failedMigrations[] = "$sourceType → $targetType (" . $e->getMessage() . ")";
+                }
             }
-            $this->setMessage('Migration applied successfully.');
+
+            // Prepare summary message
+            if (!empty($successfulMigrations) && empty($failedMigrations)) {
+                $this->setMessage('All migrations completed successfully: ' . implode(', ', $successfulMigrations));
+            } elseif (!empty($successfulMigrations) && !empty($failedMigrations)) {
+                $message = 'Partial migration completed. ';
+                $message .= 'Successful: ' . implode(', ', $successfulMigrations) . '. ';
+                $message .= 'Failed: ' . implode(', ', $failedMigrations);
+                $this->setMessage($message, 'warning');
+            } else {
+                $this->setMessage('All migrations failed: ' . implode(', ', $failedMigrations), 'error');
+            }
+            
         } catch (\Exception $e) {
             $this->setMessage('Migration failed: ' . $e->getMessage(), 'error');
         }

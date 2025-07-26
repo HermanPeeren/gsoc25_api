@@ -14,9 +14,7 @@ HTMLHelper::_('behavior.keepalive');
                     <div class="col-md-6">
                     <?php
                     echo $this->form->renderField('source_cms');
-                    echo $this->form->renderField('source_cms_object_type');
                     echo $this->form->renderField('target_cms');
-                    echo $this->form->renderField('target_cms_object_type');
                     ?>
                     </div>
                 </div>

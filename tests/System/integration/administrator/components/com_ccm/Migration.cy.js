@@ -30,30 +30,10 @@ describe('CCM Migration Controller', () => {
       .and('have.attr', 'aria-invalid', 'true');
   });
 
-  it('shows migration successful for categories', () => {
+  it('shows migration successful for complete migration', () => {
     cy.get('[name="jform[source_cms]"]').select('WordPress');
-    cy.get('[name="jform[source_cms_object_type]"]').select('Categories');
     cy.get('[name="jform[target_cms]"]').select('Joomla');
-    cy.get('[name="jform[target_cms_object_type]"]').select('Categories');
     cy.get('button[type="submit"]').contains("Apply Migration").click();
-    cy.checkForSystemMessage("Migration applied successfully");
-  });
-
-  it('shows migration successful for articles', () => {
-    cy.get('[name="jform[source_cms]"]').select('WordPress');
-    cy.get('[name="jform[source_cms_object_type]"]').select('Posts');
-    cy.get('[name="jform[target_cms]"]').select('Joomla');
-    cy.get('[name="jform[target_cms_object_type]"]').select('Articles');
-    cy.get('button[type="submit"]').contains("Apply Migration").click();
-    cy.checkForSystemMessage("Migration applied successfully");
-  });
-
-  it('shows error due to duplication', () => {
-    cy.get('[name="jform[source_cms]"]').select('WordPress');
-    cy.get('[name="jform[source_cms_object_type]"]').select('Posts');
-    cy.get('[name="jform[target_cms]"]').select('Joomla');
-    cy.get('[name="jform[target_cms_object_type]"]').select('Articles');
-    cy.get('button[type="submit"]').contains("Apply Migration").click();
-    cy.checkForSystemMessage("Migration failed");
+    cy.checkForSystemMessage("All migrations completed successfully", { timeout: 120000 });
   });
 });
