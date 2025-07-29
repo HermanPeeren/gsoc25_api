@@ -1,60 +1,89 @@
 {
-  "ContentItem": 
-  [
+  "ContentItem": [
     {
-    "type": "articles",
-    "config": {
-      "endpoint": "content/articles"
-    },
-    "properties": {
-      "id": "id",
-      "asset_id": null,
-      "title": "title",
-      "alias": "alias",
-      "articletext": {"ccm": "context", "type": "string"},
-      "url": "url",
-      "urls": "urls",
-      "attribs": null,
-      "summary": "summary",
-      "state": {
-        "ccm": "status",
-        "map": {
-          "publish": 1,
-          "draft": 0,
-          "pending": 0,
-          "future": 0,
-          "private": 0,
-          "trash": -2
-        },
-        "default": 0
+      "type": "articles",
+      "config": {
+        "endpoint": "content/articles"
       },
-      "created": {"ccm": "created", "format_date": "Y-m-d H:i:s"},
-      "created_by": null,
-      "created_by_alias": null,
-      "modified": {"ccm": "modified", "format_date": "Y-m-d H:i:s"},
-      "modified_by": null,
-      "checked_out": null,
-      "checked_out_time": null,
-      "type": "type",
-      "publish_up": null,
-      "publish_down": null,
-      "image": "image",
-      "images": "images",
-      "version": null,
-      "metakey": null,
-      "metadesc": null,
-      "language": {"ccm": "language", "default": "*"},
-      "access": null,
-      "hits": null,
-      "metadata": "meta",
-      "featured": null,
-      "note": null,
-      "author": "author",
-      "categories": "categories",
-      "catid": {"ccm": "categories", "default": 2, "type": "string"},
-      "tags": "tags"
-    },
-    "required": ["id", "title", "text"]
+      "properties": {
+        "id": "id",
+        "asset_id": null,
+        "title": "title",
+        "alias": "alias",
+        "articletext": {
+          "ccm": "context",
+          "type": "string",
+          "format": "url_replace"
+        },
+        "url": "url",
+        "urls": "urls",
+        "attribs": null,
+        "summary": "summary",
+        "state": {
+          "ccm": "status",
+          "map": {
+            "publish": 1,
+            "draft": 0,
+            "pending": 0,
+            "future": 0,
+            "private": 0,
+            "trash": -2
+          },
+          "default": 0
+        },
+        "created": {
+          "ccm": "created",
+          "format_date": "Y-m-d H:i:s"
+        },
+        "created_by": null,
+        "created_by_alias": null,
+        "modified": {
+          "ccm": "modified",
+          "format_date": "Y-m-d H:i:s"
+        },
+        "modified_by": null,
+        "checked_out": null,
+        "checked_out_time": null,
+        "type": "type",
+        "publish_up": null,
+        "publish_down": null,
+        "image": "image",
+        "images": "images",
+        "version": null,
+        "metakey": null,
+        "metadesc": null,
+        "language": {
+          "ccm": "language",
+          "default": "*"
+        },
+        "access": null,
+        "hits": null,
+        "metadata": "meta",
+        "featured": null,
+        "note": null,
+        "author": "author",
+        "categories": {
+          "ccm": "categories",
+          "type": "string",
+          "format": "array"
+        },
+        "catid": {
+          "ccm": "categories",
+          "default": 2,
+          "type": "string",
+          "format": "id_map"
+        },
+        "tags": {
+          "ccm": "tags",
+          "type": "string",
+          "format": "array"
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "text"
+      ]
     },
     {
       "type": "categories",
@@ -72,16 +101,25 @@
         },
         "type": "type",
         "note": null,
-        "published": {"ccm": "published", "default": 1},
+        "published": {
+          "ccm": "published",
+          "default": 1
+        },
         "access": null,
         "checked_out": null,
         "checked_out_time": null,
         "created_user_id": null,
-        "parent_id": "parent",
+        "parent_id": {
+          "ccm": "parent",
+          "format": "id_map"
+        },
         "level": null,
         "lft": null,
         "rgt": null,
-        "language": {"ccm": "language", "default": "*"},
+        "language": {
+          "ccm": "language",
+          "default": "*"
+        },
         "description": "description",
         "language_title": null,
         "language_image": null,
@@ -112,10 +150,22 @@
         "url": "url",
         "thumbnails": "thumbnails",
         "post_ID": "post_id",
-        "date": {"ccm": "date", "format_date": "Y-m-d H:i:s"},
-        "date_gmt": {"ccm": "date_gmt", "format_date": "Y-m-d H:i:s"},
-        "modified": {"ccm": "modified", "format_date": "Y-m-d H:i:s"},
-        "modified_gmt": {"ccm": "modified_gmt", "format_date": "Y-m-d H:i:s"},
+        "date": {
+          "ccm": "date",
+          "format_date": "Y-m-d H:i:s"
+        },
+        "date_gmt": {
+          "ccm": "date_gmt",
+          "format_date": "Y-m-d H:i:s"
+        },
+        "modified": {
+          "ccm": "modified",
+          "format_date": "Y-m-d H:i:s"
+        },
+        "modified_gmt": {
+          "ccm": "modified_gmt",
+          "format_date": "Y-m-d H:i:s"
+        },
         "slug": "slug",
         "status": {
           "ccm": "status",
@@ -146,7 +196,28 @@
         "path": "path",
         "folder": "folder"
       },
-      "required": ["id", "mime_type"]
+      "required": [
+        "id",
+        "mime_type"
+      ]
+    },
+    {
+      "type": "tags",
+      "config": {
+        "endpoint": "tags"
+      },
+      "properties": {
+        "id": "id",
+        "title": "title",
+        "alias": "alias",
+        "description": "description",
+        "language": {
+          "default": "*"
+        },
+        "parent_id": {
+          "default": 1
+        }
+      }
     }
   ]
 }

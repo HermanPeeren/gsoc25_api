@@ -1,7 +1,6 @@
 {
-  "ContentItem": 
-  [
-      {
+  "ContentItem": [
+    {
       "type": "posts",
       "properties": {
         "ID": "id",
@@ -100,6 +99,18 @@
         "length": "length",
         "videopress_guid": "videopress_guid",
         "videopress_processing_done": "videopress_processing_done"
+      }
+    },
+    {
+      "type": "tags",
+      "properties": {
+        "ID": "id",
+        "name": "title",
+        "slug": "alias",
+        "description": "description",
+        "post_count": null,
+        "feed_url": null,
+        "meta": "meta"
       }
     }
   ]

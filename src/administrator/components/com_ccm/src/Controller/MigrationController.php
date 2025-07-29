@@ -25,6 +25,7 @@ class MigrationController extends BaseController
             // Categories first (referenced by other content), then media, then content items
             $migrationMappings = [
                 ['source' => 'categories', 'target' => 'categories'],
+                ['source' => 'tags', 'target' => 'tags'],
                 ['source' => 'media', 'target' => 'media'],
                 ['source' => 'posts', 'target' => 'articles'],
             ];

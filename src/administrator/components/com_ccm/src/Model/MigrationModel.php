@@ -25,7 +25,7 @@ class MigrationModel extends FormModel
     public function __construct($config = [], $http = null)
     {
         parent::__construct($config);
-        $this->migrationMapFile = dirname(__DIR__, 1) . '/Schema/migrationMap.json';
+        $this->migrationMapFile = dirname(__DIR__, 1) . '/Schema/migrationIdMap.json';
 
         if ($http && !($http instanceof Http)) {
             $http = null;
@@ -156,7 +156,6 @@ class MigrationModel extends FormModel
         $sourceResponseBody = json_decode($sourceResponse->body, true);
 
         if (is_array($sourceResponseBody) && isset($sourceResponseBody[$sourceType]) && is_array($sourceResponseBody[$sourceType])) {
-            // error_log("[MigrationModel] Found items under key: $sourceType");
             return $sourceResponseBody[$sourceType];
         } elseif (is_array($sourceResponseBody) && isset($sourceResponseBody['items']) && is_array($sourceResponseBody['items'])) {
             // error_log("[MigrationModel] Found items under key: items");
@@ -209,34 +208,28 @@ class MigrationModel extends FormModel
         $targetSchemaFile = strtolower($targetCms->name) . '-ccm.json';
         $schemaPath       = dirname(__DIR__, 1) . '/Schema/';
         $ccmToTarget      = json_decode(file_get_contents($schemaPath . $targetSchemaFile), true);
-
-        // Find the ContentItem with the matching type
         $targetToCcm = [];
         $config = [];
         if (isset($ccmToTarget['ContentItem']) && is_array($ccmToTarget['ContentItem'])) {
-            // error_log("[MigrationModel] Looking for mapping for target type: $targetType");
             foreach ($ccmToTarget['ContentItem'] as $contentItem) {
-                // error_log("[MigrationModel] Content item type: " . ($contentItem['type'] ?? 'undefined'));
                 if (isset($contentItem['type']) && $contentItem['type'] === $targetType && isset($contentItem['properties'])) {
                     $targetToCcm = $contentItem['properties'];
                     $config = $contentItem['config'] ?? [];
-                    // error_log("[MigrationModel] Found mapping for target type: $targetType");
                     break;
                 }
             }
         }
+
         if (empty($targetToCcm)) {
-            // error_log("[MigrationModel] No mapping found for target CMS type: $targetType");
             throw new \RuntimeException('No mapping found for target CMS type: ' . $targetType);
         }
 
-
-        // Load migration map once for this item
         if (file_exists($this->migrationMapFile)) {
             $this->migrationMap = json_decode(file_get_contents($this->migrationMapFile), true) ?: [];
-            error_log("[MigrationModel] Loaded migration map from file: " . json_encode($this->migrationMap, JSON_PRETTY_PRINT));
+            // error_log("[MigrationModel] Loaded migration map from file: " . json_encode($this->migrationMap, JSON_PRETTY_PRINT));
         } else {
-            error_log("[MigrationModel] Migration map file does not exist: " . $this->migrationMapFile);
+            // error_log("[MigrationModel] Migration map file does not exist: " . $this->migrationMapFile);
+            throw new \RuntimeException('Migration map file does not exist: ' . $this->migrationMapFile);
         }
 
         $targetItems = [];
@@ -246,120 +239,148 @@ class MigrationModel extends FormModel
                 if (is_array($ccmMap)) {
                     $ccmKey = $ccmMap['ccm'] ?? null;
                     $type   = $ccmMap['type'] ?? null;
+                    $format = $ccmMap['format'] ?? null;
                     $value  = null;
 
                     if ($ccmKey && isset($ccmItem[$ccmKey])) {
                         $value = $ccmItem[$ccmKey];
-                        // ------------------- Map the Referenced IDs -------------------
-                        if (($type === 'string' || $type === 'integer') && (is_array($value) || is_object($value))) {
+
+                        if ($format === 'array' && ($type === 'string' || $type === 'integer') && (is_array($value) || is_object($value))) {
                             $arr = is_object($value) ? (array)$value : $value;
-                            // error_log("[MigrationModel] Extracting value from array/object for target key '$targetKey': " . json_encode($arr));
+                            $allIds = [];
+
+                            foreach ($arr as $item) {
+                                if (is_array($item) && (isset($item['id']) || isset($item['ID']))) {
+                                    $id = $item['id'] ?? $item['ID'];
+                                    $allIds[] = $id;
+                                }
+                            }
+
+                            if (!empty($allIds)) {
+                                $value = $allIds;
+                            } else {
+                                $first = reset($arr);
+                                if (is_array($first)) {
+                                    $value = reset($first);
+                                } else {
+                                    $value = $first;
+                                }
+                            }
+                        } elseif (($type === 'string' || $type === 'integer') && (is_array($value) || is_object($value))) {
+                            $arr = is_object($value) ? (array)$value : $value;
                             $first = reset($arr);
-                            // error_log("[MigrationModel] First element extracted: " . json_encode($first));
                             if (is_array($first) && (isset($first['id']) || isset($first['ID']))) {
                                 $value = $first['id'] ?? $first['ID'];
                             } elseif (is_array($first)) {
                                 $value = reset($first);
                             }
-                            // error_log("[MigrationModel] Extracted value from array/object for target key '$targetKey': " . json_encode($value));
                         }
 
-                        if (($type === 'string' || $type === 'integer') && !empty($value)) {
-                            // error_log("[MigrationModel] Checking for ID mapping for target key '$targetKey' with value: $value");
-                            // error_log('$this->migrationMap: ' . json_encode($this->migrationMap));
-                            foreach ($this->migrationMap as $entityType => $mappings) {
-                                // Check for ID mapping
-                                if (isset($mappings['ids']) && isset($mappings['ids'][$value])) {
-                                    // error_log("[MigrationModel] Mapping ID '$value' for target key '$targetKey' in type '$targetType' using entity type '$entityType'.");
-                                    $value = $mappings['ids'][$value];
-                                    break;
-                                }
-                            }
-                        }
-
-                        // Handle URL mapping for string fields that likely contain content with URLs
-                        // $contentFields = ['articletext', 'context', 'content', 'text', 'description', 'summary', 'excerpt', 'body'];
-                        if ($type === 'string' && !empty($value) && is_string($value) 
-                            // && in_array($targetKey, $contentFields)
-                            ) {
-                            error_log("[MigrationModel] Processing content field '$targetKey' for URL replacement. Original value: " . substr($value, 0, 200) . "...");
-                            $originalValue = $value;
-                            $replacementCount = 0;
-                            
-                            foreach ($this->migrationMap as $entityType => $mappings) {
-                                if (isset($mappings['urls']) && is_array($mappings['urls'])) {
-                                    error_log("[MigrationModel] Checking URL mappings for entity type '$entityType': " . count($mappings['urls']) . " URLs available");
-                                    // Replace all URLs within the text using regex pattern matching
-                                    foreach ($mappings['urls'] as $oldUrl => $newUrl) {
-                                        // Handle WordPress image variants (e.g., image-300x200.jpg) and base URLs
-                                        // Extract the base filename without size suffix
-                                        $oldUrlParsed = parse_url($oldUrl);
-                                        $oldPath = $oldUrlParsed['path'];
-                                        $oldPathInfo = pathinfo($oldPath);
-                                        $oldBasename = $oldPathInfo['filename']; // filename without extension
-                                        $oldExtension = $oldPathInfo['extension'];
-                                        $oldDirectory = dirname($oldPath);
-                                        
-                                        // Build the base pattern for all variants (including original)
-                                        $basePattern = $oldUrlParsed['scheme'] . '://' . $oldUrlParsed['host'];
-                                        if (isset($oldUrlParsed['port'])) {
-                                            $basePattern .= ':' . $oldUrlParsed['port'];
-                                        }
-                                        $basePattern .= $oldDirectory . '/' . $oldBasename;
-                                        
-                                        // Pattern matches both: original image AND sized variants
-                                        // e.g., image.jpg OR image-300x200.jpg OR image-1024x768.jpg
-                                        $pattern = '/' . preg_quote($basePattern, '/') . '(?:-\d+x\d+)?\.' . preg_quote($oldExtension, '/') . '/';
-                                        $matches = [];
-                                        if (preg_match_all($pattern, $value, $matches)) {
-                                            foreach ($matches[0] as $foundUrl) {
-                                                error_log("[MigrationModel] ✓ Found URL '$foundUrl' matching pattern for '$oldUrl' in field '$targetKey'");
-                                                $value = str_replace($foundUrl, $newUrl, $value);
-                                                $replacementCount++;
-                                                error_log("[MigrationModel] ✓ Replaced with '$newUrl'");
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            
-                            if ($replacementCount > 0) {
-                                error_log("[MigrationModel] ✓ URL replacement complete for field '$targetKey': $replacementCount URLs replaced");
-                                error_log("[MigrationModel] Final value: " . substr($value, 0, 200) . "...");
-                            } else {
-                                error_log("[MigrationModel] ✗ No URLs found to replace in content field '$targetKey'");
-                            }
-                        }
-
-                        // Handle value mapping (e.g., status string to int)
+                        // Handle value mapping
                         if (isset($ccmMap['map']) && is_array($ccmMap['map'])) {
                             $value = $ccmMap['map'][$value] ?? ($ccmMap['default'] ?? $value);
                         }
-                        // Handle date format if needed
+
+                        // Handle date formatting
                         if (isset($ccmMap['format_date']) && !empty($value)) {
                             $format = $ccmMap['format_date'];
                             $value = MigrationHelper::formatDate($value, $format);
                         }
-
                     }
+
                     if (empty($value) && isset($ccmMap['default'])) {
                         $value = $ccmMap['default'];
                     }
 
+                    // Format handling (array, url_replace, id_map)
+                    if (!empty($value) && $format) {
+                        switch ($format) {
+                            case 'array':
+                                if (is_array($value)) {
+                                    $mappedValues = [];
+                                    foreach ($value as $arrayValue) {
+                                        if (is_numeric($arrayValue) || (is_string($arrayValue) && ctype_digit(trim($arrayValue)))) {
+                                            $numericValue = intval($arrayValue);
+                                            $mappedValue = MigrationHelper::mapEntityId($numericValue, $this->migrationMap);
+                                            $mappedValues[] = $mappedValue;
+                                        }
+                                    }
+                                    $value = $mappedValues;
+                                } elseif (is_numeric($value) || (is_string($value) && ctype_digit(trim($value)))) {
+                                    $mappedValue = MigrationHelper::mapEntityId(intval($value), $this->migrationMap);
+                                    $value = [$mappedValue];
+                                } elseif (is_string($value) && strpos($value, ',') !== false) {
+                                    $ids = array_map('trim', explode(',', $value));
+                                    $mappedValues = [];
+                                    foreach ($ids as $id) {
+                                        if (is_numeric($id) || ctype_digit($id)) {
+                                            $mappedValue = MigrationHelper::mapEntityId(intval($id), $this->migrationMap);
+                                            $mappedValues[] = $mappedValue;
+                                        }
+                                    }
+                                    $value = $mappedValues;
+                                } else {
+                                    $value = [];
+                                }
+
+                                if (empty($value)) {
+                                    continue 2; // Skip adding this field
+                                }
+                                break;
+
+                            case 'url_replace':
+                                if (is_string($value)) {
+                                    foreach ($this->migrationMap as $entityType => $mappings) {
+                                        if (isset($mappings['urls']) && is_array($mappings['urls'])) {
+                                            foreach ($mappings['urls'] as $oldUrl => $newUrl) {
+                                                $oldUrlParsed = parse_url($oldUrl);
+                                                $oldPath = $oldUrlParsed['path'];
+                                                $oldPathInfo = pathinfo($oldPath);
+                                                $oldBasename = $oldPathInfo['filename'];
+                                                $oldExtension = $oldPathInfo['extension'];
+                                                $oldDirectory = dirname($oldPath);
+
+                                                $basePattern = $oldUrlParsed['scheme'] . '://' . $oldUrlParsed['host'];
+                                                if (isset($oldUrlParsed['port'])) {
+                                                    $basePattern .= ':' . $oldUrlParsed['port'];
+                                                }
+                                                $basePattern .= $oldDirectory . '/' . $oldBasename;
+
+                                                $pattern = '/' . preg_quote($basePattern, '/') . '(?:-\d+x\d+)?\.' . preg_quote($oldExtension, '/') . '/';
+                                                $matches = [];
+                                                if (preg_match_all($pattern, $value, $matches)) {
+                                                    foreach ($matches[0] as $foundUrl) {
+                                                        $value = str_replace($foundUrl, $newUrl, $value);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                break;
+
+                            case 'id_map':
+                                if (!empty($value) && ($type === 'string' || $type === 'integer')) {
+                                    $value = MigrationHelper::mapEntityId($value, $this->migrationMap);
+                                }
+                                break;
+                        }
+                    } else {
+                        if (($type === 'string' || $type === 'integer') && !empty($value)) {
+                            $value = MigrationHelper::mapEntityId($value, $this->migrationMap);
+                        }
+                    }
+
                     $targetItem[$targetKey] = $value;
                 } else {
-                    // Simple mapping
                     if ($ccmMap && isset($ccmItem[$ccmMap])) {
                         $targetItem[$targetKey] = $ccmItem[$ccmMap];
                     }
                 }
             }
-            // error_log("[MigrationModel] Mapped CCM item to target item: " . json_encode($targetItem));
             $targetItems[] = $targetItem;
         }
 
-        // error_log("[MigrationModel] Converted " . count($targetItems) . " CCM items to target CMS format.");
-        // error_log("[MigrationModel] Target items after conversion from CCM: " . json_encode($targetItems));
         return [
             'items' => $targetItems,
             'config' => $config
