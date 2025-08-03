@@ -112,6 +112,18 @@
         "feed_url": null,
         "meta": "meta"
       }
+    },
+    {
+      "type": "menus",
+      "properties": {
+        "ID": "id",
+        "name": "title",
+        "slug": "alias",
+        "description": "description",
+        "locations": "locations",
+        "auto_add": "auto_add",
+        "meta": "meta"
+      }
     }
   ]
 }

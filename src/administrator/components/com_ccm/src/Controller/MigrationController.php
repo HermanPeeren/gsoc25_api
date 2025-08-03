@@ -28,6 +28,7 @@ class MigrationController extends BaseController
                 ['source' => 'tags', 'target' => 'tags'],
                 ['source' => 'media', 'target' => 'media'],
                 ['source' => 'posts', 'target' => 'articles'],
+                ['source' => 'menus', 'target' => 'menus']
             ];
 
             $successfulMigrations = [];

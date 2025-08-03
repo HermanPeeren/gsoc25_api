@@ -218,6 +218,22 @@
           "default": 1
         }
       }
+    },
+    {
+      "type": "menus",
+      "config": {
+        "endpoint": "menus/site"
+      },
+      "properties": {
+        "id": "id",
+        "title": "title",
+        "description": "description",
+        "client_id": {
+          "ccm": "client_id",
+          "default": 0
+        },
+        "menutype": "alias"
+      }
     }
   ]
 }
