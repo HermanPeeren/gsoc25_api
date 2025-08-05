@@ -5,6 +5,7 @@ use Joomla\CMS\MVC\Model\FormModel;
 use Joomla\CMS\Http\HttpFactory;
 use \Joomla\CMS\Http\Http;
 use Joomla\CMS\Factory;
+use Joomla\CMS\Filter\OutputFilter;
 use Reem\Component\CCM\Administrator\Helper\MigrationHelper;
 
 /**
@@ -18,6 +19,7 @@ class MigrationModel extends FormModel
     // 'categories' => ['ids' => [oldId => newId, ...]]
     // 'users'      => ['ids' => [oldId => newId, ...]]
     // 'media'      => ['ids' => [oldId => newId, ...], 'urls' => [oldUrl => newUrl, ...]]
+    // 'menus'      => ['ids' => [oldId => [newId, menuType], ...]]
     ];
     protected $migrationMapFile;
     protected $http;
@@ -126,17 +128,67 @@ class MigrationModel extends FormModel
         $schemaPath = dirname(__DIR__, 1) . '/Schema/';
         $schema = json_decode(file_get_contents($schemaPath . $sourceSchemaFile), true);
 
-        // Find the endpoint for this source type
-        $endpoint = $sourceType;
+        $endpointConfig = null;
         if (isset($schema['ContentItem']) && is_array($schema['ContentItem'])) {
             foreach ($schema['ContentItem'] as $contentItem) {
                 if (isset($contentItem['type']) && $contentItem['type'] === $sourceType) {
-                    $endpoint = $contentItem['config']['endpoint'] ?? $sourceType;
+                    $endpointConfig = $contentItem['config'] ?? ['endpoint' => $sourceType];
                     break;
                 }
             }
         }
 
+        if (!$endpointConfig) {
+            throw new \RuntimeException("No endpoint configuration found for source type: $sourceType");
+        }
+
+        $endpoint = $endpointConfig['endpoint'];
+        $dependsOn = $endpointConfig['depends_on'] ?? null;
+
+        // If the endpoint depends on another migrated type (e.g., menu items depending on menus)
+        if ($dependsOn && isset($dependsOn['type']) && isset($dependsOn['param'])) {
+            if (file_exists($this->migrationMapFile)) {
+                $this->migrationMap = json_decode(file_get_contents($this->migrationMapFile), true) ?: [];
+            }
+
+            $dependencyType = $dependsOn['type'];
+            $dependencyParam = $dependsOn['param'];
+            $dependencyIds = $this->migrationMap[$dependencyType]['ids'] ?? [];
+
+            if (empty($dependencyIds)) {
+                throw new \RuntimeException("No migrated items of type '{$dependencyType}' found, which is a dependency for '{$sourceType}'.");
+            }
+
+            $allItems = [];
+            foreach ($dependencyIds as $oldId => $newId) {
+                $dependencyEndpoint = str_replace(':' . $dependencyParam, (string) $oldId, $endpoint);
+                $sourceEndpoint = $sourceUrl . '/' . $dependencyEndpoint;
+                error_log("[MigrationModel] Fetching source items from: $sourceEndpoint");
+
+                $headers = ['Accept' => 'application/json'];
+                if ($sourceAuthentication) {
+                    $authHeaders = MigrationHelper::parseAuthentication($sourceAuthentication);
+                    $headers = array_merge($headers, $authHeaders);
+                }
+
+                $sourceResponse = $this->http->get($sourceEndpoint, $headers);
+                $sourceResponseBody = json_decode($sourceResponse->body, true);
+                error_log("[MigrationModel] Menu Items - Source response body: " . $sourceResponse->body);
+
+                $items = $sourceResponseBody['items'] ?? ($sourceResponseBody[$sourceType] ?? $sourceResponseBody);
+
+                if (is_array($items)) {
+                    foreach ($items as &$item) {
+                        // Inject the original dependency ID for later mapping
+                        $item[$dependencyParam] = $oldId;
+                    }
+                    $allItems = array_merge($allItems, $items);
+                }
+            }
+            return $allItems;
+        }
+
+        // Default flow for endpoints without dependencies
         $sourceEndpoint = $sourceUrl . '/' . $endpoint;
 
         $headers = [
@@ -292,9 +344,84 @@ class MigrationModel extends FormModel
                         $value = $ccmMap['default'];
                     }
 
+                    if (empty($value) && $format) {
+                        switch ($format) {
+                            case 'alias':
+                                error_log("[MigrationModel] Formatting alias for the title: " . $ccmItem['title']);
+                                $value = OutputFilter::stringURLSafe($ccmItem['title']);
+                                break;
+
+                                
+                            case 'name_map':
+                                // Look through menus mapping to find the matching menutype
+                                foreach ($this->migrationMap['menus']['ids'] as $mapping) {
+                                    if (is_array($mapping) && isset($mapping[1])) {
+                                        $value = $mapping[1]; // Get the menutype value
+                                        error_log("[MigrationModel] Found menutype: $value");
+                                        break; // Use the first menutype found
+                                    }
+                                }
+                                if (empty($value)) {
+                                    error_log("[MigrationModel] No menutype found in menus mapping");
+                                }
+                                break;
+                        }
+                    }
+
                     // Format handling (array, url_replace, id_map)
                     if (!empty($value) && $format) {
                         switch ($format) {
+                            case 'link_builder':
+                                $template = $ccmMap['template'] ?? '';
+                                $params = $ccmMap['params'] ?? [];
+                                $builtLink = $template;
+                                foreach ($params as $paramKey => $paramSource) {
+                                    $replaceValue = '';
+                                    if ($paramSource['source'] === 'id_map') {
+                                        $sourceId = $ccmItem[$paramSource['ccm_key']] ?? null;
+                                        if ($sourceId) {
+                                            $mapType = $paramSource['map_type'];
+                                            // Determine map_type based on content type if needed
+                                            if ($mapType === 'articles' && isset($ccmItem['type']) && $ccmItem['type'] === 'category') {
+                                                $mapType = 'categories';
+                                            }
+                                            $replaceValue = $this->migrationMap[$mapType]['ids'][$sourceId] ?? '';
+                                            error_log("[MigrationModel] Mapping ID for $mapType: $sourceId -> $replaceValue");
+                                        }
+                                    } elseif ($paramSource['source'] === 'map') {
+                                        $sourceValue = $ccmItem[$paramSource['ccm_key']] ?? null;
+                                        if ($sourceValue && isset($paramSource['map'][$sourceValue])) {
+                                            $replaceValue = $paramSource['map'][$sourceValue];
+                                        }
+                                    }
+                                    $builtLink = str_replace(':' . $paramKey, $replaceValue, $builtLink);
+                                }
+                                $value = $builtLink;
+                                error_log("[MigrationModel] Built link for key '$targetKey': " . json_encode($value));
+                                break;
+                            case 'object_builder':
+                                $params = $ccmMap['params'] ?? [];
+                                $requestObject = [];
+                                foreach ($params as $paramKey => $paramSource) {
+                                    if ($paramSource['source'] === 'id_map') {
+                                        $sourceId = $ccmItem[$paramSource['ccm_key']] ?? null;
+                                        if ($sourceId) {
+                                            $mapType = $paramSource['map_type'];
+                                            // Determine map_type based on content type if needed
+                                            if ($mapType === 'articles' && isset($ccmItem['type']) && $ccmItem['type'] === 'category') {
+                                                $mapType = 'categories';
+                                            }
+                                            $mappedId = $this->migrationMap[$mapType]['ids'][$sourceId] ?? null;
+                                            if ($mappedId) {
+                                                $requestObject[$paramKey] = $mappedId;
+                                                error_log("[MigrationModel] Mapped ID for request object: $sourceId -> $mappedId ($mapType)");
+                                            }
+                                        }
+                                    }
+                                }
+                                $value = $requestObject;
+                                error_log("[MigrationModel] Built object for key '$targetKey': " . json_encode($value));
+                                break;
                             case 'array':
                                 if (is_array($value)) {
                                     $mappedValues = [];
@@ -462,7 +589,15 @@ class MigrationModel extends FormModel
                     if (!isset($this->migrationMap[$targetType]['ids'])) {
                         $this->migrationMap[$targetType]['ids'] = [];
                     }
-                    $this->migrationMap[$targetType]['ids'][$oldId] = $newId;
+                    
+                    // For menus, store both newId and menutype
+                    if ($targetType === 'menus') {
+                        error_log("[MigrationModel] Storing menu item with menutype for item: " . json_encode($item));
+                        $menutype = $item['menutype'] ?? $item['alias'] ?? $item['slug'] ?? '';
+                        $this->migrationMap[$targetType]['ids'][$oldId] = [$newId, $menutype];
+                    } else {
+                        $this->migrationMap[$targetType]['ids'][$oldId] = $newId;
+                    }
                     error_log("[MigrationModel] Added to ID map: $targetType.ids[$oldId] = $newId");
                 } else {
                     error_log("[MigrationModel] Warning: Could not extract old/new IDs for mapping");

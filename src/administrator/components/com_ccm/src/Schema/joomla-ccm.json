@@ -234,6 +234,91 @@
         },
         "menutype": "alias"
       }
+    },
+    {
+      "type": "menu_items",
+      "config": {
+        "endpoint": "menus/site/items"
+      },
+      "properties": {
+        "id": "id",
+        "menutype": {
+          "ccm": "menutype",
+          "format": "name_map",
+          "type": "string"
+        },
+        "title": "title",
+        "alias": {
+          "ccm": "alias",
+          "format": "alias"
+        },
+        "link": {
+          "ccm": "object_id",
+          "format": "link_builder",
+          "template": "index.php?option=com_content&view=:view&id=:id",
+          "params": {
+            "id": {
+              "source": "id_map",
+              "ccm_key": "object_id",
+              "map_type": "articles"
+            },
+            "view": {
+              "source": "map",
+              "ccm_key": "type",
+              "map": {
+                "post": "article",
+                "category": "category&layout=blog"
+              }
+            }
+          }
+        },
+        "published": {
+          "ccm": "status",
+          "map": {
+            "publish": 1,
+            "draft": 0,
+            "pending": 0,
+            "future": 0,
+            "private": 0,
+            "trash": -2
+          },
+          "default": 1
+        },
+        "type": {
+          "ccm": "type",
+          "map": {
+            "category": "component",
+            "post": "component",
+            "page": "component",
+            "custom": "url"
+          },
+          "default": "component"
+        },
+        "component_id": {
+          "ccm": "type",
+          "map": {
+            "post": "19",
+            "category": "19",
+            "custom": "0"
+          },
+          "default": "0"
+        },
+        "request": {
+          "ccm": "object_id",
+          "format": "object_builder",
+          "params": {
+            "id": {
+              "source": "id_map",
+              "ccm_key": "object_id",
+              "map_type": "articles"
+            }
+          }
+        },
+        "language": {
+          "ccm": "language",
+          "default": "*"
+        }
+      }
     }
   ]
 }

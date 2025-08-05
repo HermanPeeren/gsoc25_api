@@ -124,6 +124,31 @@
         "auto_add": "auto_add",
         "meta": "meta"
       }
+    },
+    {
+      "type": "menu_items",
+      "config": {
+        "endpoint": "menus/:menu_id/items",
+        "depends_on": {
+          "type": "menus",
+          "param": "menu_id"
+        }
+      },
+      "properties": {
+        "ID": "id",
+        "name": "title",
+        "type_label": "type_label",
+        "type": "type",
+        "status": "status",
+        "parent": "parent",
+        "attr_title": "attr_title",
+        "classes": "classes",
+        "description": "description",
+        "target": "target",
+        "URL": "url",
+        "content_ID": "object_id",
+        "meta": "meta"
+      }
     }
   ]
 }
