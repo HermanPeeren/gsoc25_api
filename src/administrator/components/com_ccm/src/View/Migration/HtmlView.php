@@ -4,10 +4,15 @@ namespace Reem\Component\CCM\Administrator\View\Migration;
 defined('_JEXEC') or die;
 
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
+use Joomla\CMS\Toolbar\ToolbarHelper;
+use Joomla\CMS\Language\Text;
 use Reem\Component\CCM\Administrator\Migration\Migration;
 
 class HtmlView extends BaseHtmlView
 {
+    public $item;
+    public $form;
+    public $state;
 
     public function display($tpl = null): void
     {
@@ -18,9 +23,19 @@ class HtmlView extends BaseHtmlView
         $this->form  = $model->getForm();
         $this->state = $model->getState();
 
+        $this->addToolbar();
+
         // after each step say echo "Mapping is done" --> then echo "Migration is done"
         //this can be added in js in frontend in mdeia folder
         //from webassets 
         parent::display($tpl);
+    }
+
+    protected function addToolbar()
+    {
+        ToolbarHelper::title(Text::_('COM_CCM_TITLE_MIGRATION'), 'refresh');
+        
+        // Don't add apply button here - we'll use the form button instead
+        ToolbarHelper::cancel('migration.cancel');
     }
 }

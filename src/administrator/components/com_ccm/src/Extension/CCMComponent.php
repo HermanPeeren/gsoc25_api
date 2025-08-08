@@ -6,6 +6,8 @@ defined('_JEXEC') or die;
 
 use Joomla\CMS\Extension\BootableExtensionInterface;
 use Joomla\CMS\Extension\MVCComponent;
+use Joomla\CMS\HTML\HTMLHelper;
+use Joomla\CMS\Language\Text;
 use Psr\Container\ContainerInterface;
 
 // starting point for the component
@@ -13,5 +15,17 @@ class CCMComponent extends MVCComponent implements BootableExtensionInterface
 {
     public function boot(ContainerInterface $container) {
         // Initialize your component here
+    }
+
+    /**
+     * Returns valid contexts
+     *
+     * @return  array
+     *
+     * @since   __DEV__
+     */
+    public function getContexts(): array
+    {
+        return ['com_ccm.cms', 'com_ccm.migration'];
     }
 }

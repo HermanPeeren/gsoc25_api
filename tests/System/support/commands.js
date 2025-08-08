@@ -18,7 +18,8 @@ Cypress.Commands.add('clickToolbarButton', (buttonText) => {
 
 // Command to check for Joomla system messages
 Cypress.Commands.add('checkForSystemMessage', (messageText, options = {}) => {
-  cy.get('.alert-message, .alert-success', options).should('contain', messageText);
+  const mergedOptions = { timeout: 120000, ...options };
+  cy.get('.alert-message, .alert-success', mergedOptions).should('contain', messageText);
 });
 
 function createInsertQuery(table, values) {

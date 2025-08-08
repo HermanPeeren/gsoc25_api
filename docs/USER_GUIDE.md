@@ -42,7 +42,7 @@ The component will automatically create the required database tables upon instal
 3. Update the CMS details:
    - **Name**: Descriptive name for the CMS
    - **URL**: Base URL of the source CMS
-   - **Credentials**: API keys or authentication details
+   - **Credentials**: API keys or authentication details. Refer to [Auth Guidance](AUTHENTICATION_GUIDE.md).
 
 ### 2. Obtaining CMS Credentials
 

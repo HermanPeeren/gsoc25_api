@@ -36,10 +36,18 @@ class HtmlView extends BaseHtmlView
     {
         $canDo = ContentHelper::getActions('com_ccm');
         $toolbar = $this->getDocument()->getToolbar();
-        ToolbarHelper::title(Text::_('COM_CCM_CMS_NAME_LIST'), 'ccm');
+        ToolbarHelper::title(Text::_('COM_CCM_TITLE_CMS'), 'generic');
 
         if ($canDo->get('core.create')) {
             $toolbar->addNew('cms.add');
+        }
+
+        if ($canDo->get('core.edit')) {
+            $toolbar->edit('cms.edit');
+        }
+
+        if ($canDo->get('core.delete')) {
+            $toolbar->delete('cmss.delete');
         }
     }
 }

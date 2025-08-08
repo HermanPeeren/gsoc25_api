@@ -1,6 +1,6 @@
 describe('CCM CMS Admin', () => {
   beforeEach(() => {
-    cy.db_createCms({ name: 'Test CMS' });
+    cy.db_createCms({ name: 'Test CMS', url:'https://example.com', authentication:'{"username":"admin","password":"admin"}' });
     cy.doAdministratorLogin();
     cy.visit('/administrator/index.php?option=com_ccm&view=cmss');
     cy.get('table').contains('Test CMS').click();
@@ -38,6 +38,7 @@ describe('CCM CMS Admin', () => {
   });
 
   it('can edit a CMS name, with empty url', () => {
+    cy.get('input[name="jform[url]"]').clear();
     cy.clickToolbarButton('Save');
     cy.checkForSystemMessage("The form cannot be submitted as it's missing required data.");
   });

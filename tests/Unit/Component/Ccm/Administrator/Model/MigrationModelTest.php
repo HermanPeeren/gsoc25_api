@@ -6,6 +6,7 @@ use Joomla\Tests\Unit\UnitTestCase;
 use Joomla\CMS\Http\Http;
 
 use Reem\Component\CCM\Administrator\Model\MigrationModel;
+use Reem\Component\CCM\Administrator\Helper\MigrationHelper;
 
 class MigrationModelTest extends UnitTestCase
 {
@@ -46,7 +47,11 @@ class MigrationModelTest extends UnitTestCase
         $method     = $reflection->getMethod('getSourceItems');
         $method->setAccessible(true);
 
-        $sourceCms  = (object)[ 'name' => 'wordpress', 'url' => 'https://example.com/api' ];
+        $sourceCms  = (object)[ 
+            'name' => 'wordpress', 
+            'url' => 'https://example.com/api',
+            'authentication' => '{"type":"none"}'
+        ];
         $sourceType = 'posts';
 
         $sourceItems = $method->invokeArgs($model, [$sourceCms, $sourceType]);
@@ -144,15 +149,27 @@ class MigrationModelTest extends UnitTestCase
         ];
 
         $reflection = new \ReflectionClass($model);
+        
+        // Set the migrationMapFile property since constructor is disabled
+        $propertyFile = $reflection->getProperty('migrationMapFile');
+        $propertyFile->setAccessible(true);
+        $propertyFile->setValue($model, sys_get_temp_dir() . '/migrationMap.json');
+        
+        // Create a mock migration map file
+        file_put_contents(sys_get_temp_dir() . '/migrationMap.json', '{}');
+        
         $method     = $reflection->getMethod('convertCcmToTargetCms');
         $method->setAccessible(true);
 
         $targetItems = $method->invokeArgs($model, [$ccmItems, $targetCms, $targetType]);
 
         $this->assertIsArray($targetItems);
-        $this->assertEquals('Article 1 WordPress', $targetItems[0]['title']);
-        $this->assertEquals('article-1-wordpress', $targetItems[0]['alias']);
-        $this->assertEquals('1', $targetItems[0]['state']);
+        $this->assertEquals('Article 1 WordPress', $targetItems['items'][0]['title']);
+        $this->assertEquals('article-1-wordpress', $targetItems['items'][0]['alias']);
+        $this->assertEquals('1', $targetItems['items'][0]['state']);
+        
+        // Clean up
+        unlink(sys_get_temp_dir() . '/migrationMap.json');
     }
 
     /**
@@ -160,16 +177,7 @@ class MigrationModelTest extends UnitTestCase
      */
     public function testFormatDateReturnsFormatted()
     {
-        $model = $this->getMockBuilder(MigrationModel::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods([])
-            ->getMock();
-
-        $reflection = new \ReflectionClass($model);
-        $method     = $reflection->getMethod('formatDate');
-        $method->setAccessible(true);
-
-        $this->assertEquals('2025-06-25', $method->invokeArgs($model, ['2025-06-25T14:59:39+03:00', 'Y-m-d']));
+        $this->assertEquals('2025-06-25', MigrationHelper::formatDate('2025-06-25T14:59:39+03:00', 'Y-m-d'));
     }
 
     /**
@@ -191,16 +199,11 @@ class MigrationModelTest extends UnitTestCase
             ->onlyMethods([])
             ->getMock();
 
-        // $GLOBALS['file_put_contents_called'] = false;
-        // $filePutContentsMock = function($filename, $data) {
-        //     $GLOBALS['file_put_contents_called'] = true;
-        //     return true;
-        // };
-
         $targetCms = (object)[
             'name' => 'joomla',
             'url' => 'https://example.com/api',
-            'credentials' => 'token123'
+            'credentials' => 'token123',
+            'authentication' => '{"type":"none"}'
         ];
         $targetType = 'articles';
         $ccmToTargetItems = [
@@ -213,9 +216,9 @@ class MigrationModelTest extends UnitTestCase
         $property->setAccessible(true);
         $property->setValue($model, $httpMock);
 
-        $propertyFile = $reflection->getProperty('migrationIdMapFile');
+        $propertyFile = $reflection->getProperty('migrationMapFile');
         $propertyFile->setAccessible(true);
-        $propertyFile->setValue($model, sys_get_temp_dir() . '/migrationIdMap.json');
+        $propertyFile->setValue($model, sys_get_temp_dir() . '/migrationMap.json');
 
         $method = $reflection->getMethod('migrateItemsToTargetCms');
         $method->setAccessible(true);

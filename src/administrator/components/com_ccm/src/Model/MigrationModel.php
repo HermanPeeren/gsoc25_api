@@ -27,7 +27,7 @@ class MigrationModel extends FormModel
     public function __construct($config = [], $http = null)
     {
         parent::__construct($config);
-        $this->migrationMapFile = dirname(__DIR__, 1) . '/Schema/migrationIdMap.json';
+        $this->migrationMapFile = dirname(__DIR__, 1) . '/Schema/migrationMap.json';
 
         if ($http && !($http instanceof Http)) {
             $http = null;

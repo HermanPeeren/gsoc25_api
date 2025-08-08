@@ -43,6 +43,10 @@
 			<language tag="en-GB">language/en-GB/com_ccm.ini</language>
 			<language tag="en-GB">language/en-GB/com_ccm.sys.ini</language>
 		</languages>
-        <menu link="option=com_ccm" img="class:default">COM_CCM_MENU_BACKEND</menu>
+        <menu link="option=com_ccm&amp;view=cmss" img="class:default">COM_CCM_MENU_BACKEND</menu>
+        <submenu>
+            <menu link="option=com_ccm&amp;view=cmss" img="class:default">COM_CCM_SUBMENU_CMS</menu>
+            <menu link="option=com_ccm&amp;view=migration" img="class:default">COM_CCM_SUBMENU_MIGRATION</menu>
+        </submenu>
     </administration>
 </extension>
