@@ -27,6 +27,7 @@ class MigrationController extends BaseController
                 ['source' => 'categories', 'target' => 'categories'],
                 ['source' => 'tags', 'target' => 'tags'],
                 ['source' => 'media', 'target' => 'media'],
+                ['source' => 'users', 'target' => 'users'],
                 ['source' => 'pages', 'target' => 'articles'],
                 ['source' => 'posts', 'target' => 'articles'],
                 ['source' => 'menus', 'target' => 'menus'],

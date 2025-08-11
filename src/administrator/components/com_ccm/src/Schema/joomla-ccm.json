@@ -331,6 +331,41 @@
           "default": "*"
         }
       }
+    },
+    {
+      "type": "users",
+      "config": {
+        "endpoint": "users"
+      },
+      "properties": {
+        "id": "id",
+        "name": "name",
+        "email": "email",
+        "username": "username",
+        "password": {
+          "ccm": "password",
+          "format": "password"
+        },
+        "groups": {
+          "ccm": "roles",
+          "type": "array",
+          "format": "array",
+          "map": {
+            "subscriber": 2,
+            "contributor": 3,
+            "author": 3,
+            "editor": 4,
+            "administrator": 7,
+            "super_admin": 8
+          },
+          "default": 2
+        },
+        "status": "status",
+        "registerDate": "date",
+        "modified": "modified",
+        "last_login": "last_login",
+        "avatar": "avatar"
+      }
     }
   ]
 }

@@ -204,6 +204,28 @@
         "content_ID": "object_id",
         "meta": "meta"
       }
+    },
+    {
+      "type": "users",
+      "properties": {
+        "ID": "id",
+        "login": "login",
+        "email": "email",
+        "name": "name",
+        "first_name": "first_name",
+        "last_name": "last_name",
+        "nice_name": "username",
+        "URL": "url",
+        "avatar_URL": "avatar_url",
+        "profile_URL": "profile_url",
+        "roles": "roles",
+        "site_ID": "site_id",
+        "date": "date",
+        "is_super_admin": "super_admin",
+        "site_visible": "visible",
+        "primary_blog": "primary_blog",
+        "meta": "meta"
+      }
     }
   ]
 }
