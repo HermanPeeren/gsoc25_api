@@ -6,6 +6,7 @@ use Joomla\CMS\Http\HttpFactory;
 use \Joomla\CMS\Http\Http;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Filter\OutputFilter;
+use Joomla\CMS\User\UserHelper;
 use Reem\Component\CCM\Administrator\Helper\MigrationHelper;
 
 /**
@@ -328,8 +329,8 @@ class MigrationModel extends FormModel
                             }
                         }
 
-                        // Handle value mapping
-                        if (isset($ccmMap['map']) && is_array($ccmMap['map'])) {
+                        // Handle value mapping (skip for array values as they need special handling)
+                        if (isset($ccmMap['map']) && is_array($ccmMap['map']) && !is_array($value)) {
                             $value = $ccmMap['map'][$value] ?? ($ccmMap['default'] ?? $value);
                         }
 
@@ -346,12 +347,17 @@ class MigrationModel extends FormModel
 
                     if (empty($value) && $format) {
                         switch ($format) {
+                            case 'password':
+                                error_log("[MigrationModel] Generating password for the user: " . $ccmItem['username']);
+                                $value = UserHelper::genRandomPassword(16);
+                                error_log("[MigrationModel] Generated password: " . $value);
+                                break;
+
                             case 'alias':
                                 error_log("[MigrationModel] Formatting alias for the title: " . $ccmItem['title']);
                                 $value = OutputFilter::stringURLSafe($ccmItem['title']);
                                 break;
 
-                                
                             case 'name_map':
                                 // Look through menus mapping to find the matching menutype
                                 foreach ($this->migrationMap['menus']['ids'] as $mapping) {
@@ -424,15 +430,32 @@ class MigrationModel extends FormModel
                                 break;
                             case 'array':
                                 if (is_array($value)) {
-                                    $mappedValues = [];
-                                    foreach ($value as $arrayValue) {
-                                        if (is_numeric($arrayValue) || (is_string($arrayValue) && ctype_digit(trim($arrayValue)))) {
-                                            $numericValue = intval($arrayValue);
-                                            $mappedValue = MigrationHelper::mapEntityId($numericValue, $this->migrationMap);
+                                    // Check if we have a role mapping configuration
+                                    error_log("ccmMap: " . json_encode($ccmMap));
+                                    if (isset($ccmMap['map']) && is_array($ccmMap['map'])) {
+                                        // Handle role mapping directly in the model
+                                        error_log("[MigrationModel] Role mapping configuration found for array value: " . json_encode($value));
+                                        $mappedValues = [];
+                                        foreach ($value as $arrayValue) {
+                                            // Map roles using the provided mapping
+                                            $mappedValue = $ccmMap['map'][$arrayValue] ?? ($ccmMap['default'] ?? $arrayValue);
+                                            error_log("[MigrationModel] Role mapping: $arrayValue -> $mappedValue");
                                             $mappedValues[] = $mappedValue;
                                         }
+                                        $value = $mappedValues;
+                                    } else {
+                                        // Handle numeric ID mapping (existing functionality)
+                                        error_log("[MigrationModel] Numeric ID mapping for array value: " . json_encode($value));
+                                        $mappedValues = [];
+                                        foreach ($value as $arrayValue) {
+                                            if (is_numeric($arrayValue) || (is_string($arrayValue) && ctype_digit(trim($arrayValue)))) {
+                                                $numericValue = intval($arrayValue);
+                                                $mappedValue = MigrationHelper::mapEntityId($numericValue, $this->migrationMap);
+                                                $mappedValues[] = $mappedValue;
+                                            }
+                                        }
+                                        $value = $mappedValues;
                                     }
-                                    $value = $mappedValues;
                                 } elseif (is_numeric($value) || (is_string($value) && ctype_digit(trim($value)))) {
                                     $mappedValue = MigrationHelper::mapEntityId(intval($value), $this->migrationMap);
                                     $value = [$mappedValue];
@@ -488,6 +511,14 @@ class MigrationModel extends FormModel
 
                             case 'id_map':
                                 if (!empty($value) && ($type === 'string' || $type === 'integer')) {
+                                    // Handle object with ID extraction (like author object)
+                                    if (is_array($value) && isset($value['ID'])) {
+                                        $value = $value['ID'];
+                                        error_log("[MigrationModel] Extracted ID from object for id_map: " . $value);
+                                    } elseif (is_object($value) && isset($value->ID)) {
+                                        $value = $value->ID;
+                                        error_log("[MigrationModel] Extracted ID from object for id_map: " . $value);
+                                    }
                                     $value = MigrationHelper::mapEntityId($value, $this->migrationMap);
                                 }
                                 break;

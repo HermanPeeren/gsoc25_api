@@ -35,7 +35,11 @@
           "ccm": "created",
           "format_date": "Y-m-d H:i:s"
         },
-        "created_by": null,
+        "created_by": {
+          "ccm": "author",
+          "type": "string",
+          "format": "id_map"
+        },
         "created_by_alias": null,
         "modified": {
           "ccm": "modified",
@@ -211,6 +215,7 @@
         "title": "title",
         "alias": "alias",
         "description": "description",
+        "created_user_id": null,
         "language": {
           "default": "*"
         },
