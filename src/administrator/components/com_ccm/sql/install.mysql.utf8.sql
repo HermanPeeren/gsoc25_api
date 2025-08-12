@@ -17,12 +17,4 @@ CREATE TABLE IF NOT EXISTS `#__ccm_cms` (
 -- Dumping data for table `#__ccm_cms`
 INSERT INTO `#__ccm_cms` (`id`, `name`) VALUES
 (1, 'Joomla'),
-(2, 'WordPress'),
--- (3, 'Drupal'),
--- (4, 'Magento'),
--- (5, 'Shopify'),
--- (6, 'Blogger'),
--- (7, 'Wix'),
--- (8, 'Squarespace'),
--- (9, 'Weebly'),
--- (10, 'PrestaShop');
+(2, 'WordPress');
