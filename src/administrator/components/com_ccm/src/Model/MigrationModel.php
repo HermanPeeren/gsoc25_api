@@ -290,10 +290,11 @@ class MigrationModel extends FormModel
             $targetItem = [];
             foreach ($targetToCcm as $targetKey => $ccmMap) {
                 if (is_array($ccmMap)) {
-                    $ccmKey = $ccmMap['ccm'] ?? null;
-                    $type   = $ccmMap['type'] ?? null;
-                    $format = $ccmMap['format'] ?? null;
-                    $value  = null;
+                    $ccmKey     = $ccmMap['ccm'] ?? null;
+                    $type       = $ccmMap['type'] ?? null;
+                    $format     = $ccmMap['format'] ?? null;
+                    $entityType = $ccmMap['entityType'] ?? null;
+                    $value      = null;
 
                     if ($ccmKey && isset($ccmItem[$ccmKey])) {
                         $value = $ccmItem[$ccmKey];
@@ -450,21 +451,21 @@ class MigrationModel extends FormModel
                                         foreach ($value as $arrayValue) {
                                             if (is_numeric($arrayValue) || (is_string($arrayValue) && ctype_digit(trim($arrayValue)))) {
                                                 $numericValue = intval($arrayValue);
-                                                $mappedValue = MigrationHelper::mapEntityId($numericValue, $this->migrationMap);
+                                                $mappedValue = MigrationHelper::mapEntityId($numericValue, $this->migrationMap, $entityType);
                                                 $mappedValues[] = $mappedValue;
                                             }
                                         }
                                         $value = $mappedValues;
                                     }
                                 } elseif (is_numeric($value) || (is_string($value) && ctype_digit(trim($value)))) {
-                                    $mappedValue = MigrationHelper::mapEntityId(intval($value), $this->migrationMap);
+                                    $mappedValue = MigrationHelper::mapEntityId(intval($value), $this->migrationMap, $entityType);
                                     $value = [$mappedValue];
                                 } elseif (is_string($value) && strpos($value, ',') !== false) {
                                     $ids = array_map('trim', explode(',', $value));
                                     $mappedValues = [];
                                     foreach ($ids as $id) {
                                         if (is_numeric($id) || ctype_digit($id)) {
-                                            $mappedValue = MigrationHelper::mapEntityId(intval($id), $this->migrationMap);
+                                            $mappedValue = MigrationHelper::mapEntityId(intval($id), $this->migrationMap, $entityType);
                                             $mappedValues[] = $mappedValue;
                                         }
                                     }
@@ -519,13 +520,13 @@ class MigrationModel extends FormModel
                                         $value = $value->ID;
                                         error_log("[MigrationModel] Extracted ID from object for id_map: " . $value);
                                     }
-                                    $value = MigrationHelper::mapEntityId($value, $this->migrationMap);
+                                    $value = MigrationHelper::mapEntityId($value, $this->migrationMap, $entityType);
                                 }
                                 break;
                         }
                     } else {
                         if (($type === 'string' || $type === 'integer') && !empty($value)) {
-                            $value = MigrationHelper::mapEntityId($value, $this->migrationMap);
+                            $value = MigrationHelper::mapEntityId($value, $this->migrationMap, $entityType);
                         }
                     }
 

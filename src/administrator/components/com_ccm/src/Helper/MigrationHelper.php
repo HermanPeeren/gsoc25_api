@@ -168,19 +168,20 @@ class MigrationHelper
      * @param mixed $migrationMap The migration map
      * @return mixed The mapped ID or original value if no mapping found
      */
-    public static function mapEntityId($value, $migrationMap) {
+    public static function mapEntityId($value, $migrationMap, $entityType = null) {
         if (empty($value)) {
             return $value;
         }
 
-        foreach ($migrationMap as $entityType => $mappings) {
-            // Check for ID mapping
-            if (isset($mappings['ids']) && isset($mappings['ids'][$value])) {
-                error_log("[MigrationHelper] 🔗 Mapping ID '$value' using entity type '$entityType' → '{$mappings['ids'][$value]}'");
+        if ($entityType && isset($migrationMap[$entityType]['ids'][$value])) {
+            return $migrationMap[$entityType]['ids'][$value];
+        }
+        // fallback: search all types (old behavior, optional)
+        foreach ($migrationMap as $type => $mappings) {
+            if (isset($mappings['ids'][$value])) {
                 return $mappings['ids'][$value];
             }
         }
-        
-        return $value; // Return original value if no mapping found
+        return $value;
     }
 }

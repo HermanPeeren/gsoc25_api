@@ -38,7 +38,8 @@
         "created_by": {
           "ccm": "author",
           "type": "string",
-          "format": "id_map"
+          "format": "id_map",
+          "entityType": "users"
         },
         "created_by_alias": null,
         "modified": {
@@ -75,7 +76,8 @@
           "ccm": "categories",
           "default": 2,
           "type": "string",
-          "format": "id_map"
+          "format": "id_map",
+          "entityType": "categories"
         },
         "tags": {
           "ccm": "tags",
