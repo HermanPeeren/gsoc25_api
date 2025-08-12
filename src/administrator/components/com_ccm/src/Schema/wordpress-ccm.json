@@ -123,7 +123,8 @@
         "feed_url": null,
         "link": "url",
         "taxonomy": "type",
-        "meta": "meta"
+        "meta": "meta",
+        "menu_id": "menu_id"
       }
     },
     {

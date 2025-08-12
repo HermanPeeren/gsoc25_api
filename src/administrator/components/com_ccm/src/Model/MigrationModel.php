@@ -249,6 +249,10 @@ class MigrationModel extends FormModel
                     $ccmItem[$ccmKey] = $item[$sourceKey];
                 }
             }
+            // Preserve injected dependency parameter (e.g., menu_id)
+            if (isset($item['menu_id'])) {
+                $ccmItem['menu_id'] = $item['menu_id'];
+            }
             $ccmItems[] = $ccmItem;
         }
 
@@ -360,16 +364,18 @@ class MigrationModel extends FormModel
                                 break;
 
                             case 'name_map':
-                                // Look through menus mapping to find the matching menutype
-                                foreach ($this->migrationMap['menus']['ids'] as $mapping) {
+                                // Map using injected dependency (e.g., 'menu') to find correct menutype
+                                error_log("[MigrationModel] Injected ccmItem2: " . json_encode($ccmItem));
+                                $oldMenuId = $ccmItem['menu_id'] ?? null;
+                                $value = null;
+                                if ($oldMenuId !== null && isset($this->migrationMap['menus']['ids'][$oldMenuId])) {
+                                    $mapping = $this->migrationMap['menus']['ids'][$oldMenuId];
                                     if (is_array($mapping) && isset($mapping[1])) {
-                                        $value = $mapping[1]; // Get the menutype value
-                                        error_log("[MigrationModel] Found menutype: $value");
-                                        break; // Use the first menutype found
+                                        $value = $mapping[1];
+                                        error_log("[MigrationModel] Mapped menutype for menu_id $oldMenuId: $value");
                                     }
-                                }
-                                if (empty($value)) {
-                                    error_log("[MigrationModel] No menutype found in menus mapping");
+                                } else {
+                                    error_log("[MigrationModel] No menutype mapping found for menu_id $oldMenuId");
                                 }
                                 break;
                         }
@@ -379,6 +385,12 @@ class MigrationModel extends FormModel
                     if (!empty($value) && $format) {
                         switch ($format) {
                             case 'link_builder':
+                                // If this is a custom link menu-item, use the original URL instead of the template
+                                if (isset($ccmItem['type']) && $ccmItem['type'] === 'custom') {
+                                    $value = $ccmItem['url'] ?? null;
+                                    error_log("[MigrationModel] Using custom link URL: " . $value);
+                                    break;
+                                }
                                 $template = $ccmMap['template'] ?? '';
                                 $params = $ccmMap['params'] ?? [];
                                 $builtLink = $template;
