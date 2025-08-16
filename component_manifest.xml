@@ -6,7 +6,7 @@
     <authorUrl>https://github.com/username/gsoc25_api</authorUrl>
     <copyright>Copyright (C) 2025 Reem. All rights reserved.</copyright>
     <license>GNU General Public License version 2 or later; see LICENSE.txt</license>
-    <version>__DEPLOY_VERSION__</version>
+    <version>0.8.0-alpha</version>
     <description>COM_CCM_DESCRIPTION</description>
 
     <install>

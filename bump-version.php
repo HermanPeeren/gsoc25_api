@@ -47,16 +47,35 @@ class VersionBumper
     private function updateBuildScript($newVersion)
     {
         $content = file_get_contents($this->buildScript);
-        $pattern = "/private \$version = '[^']+';/";
-        $replacement = "private \$version = '$newVersion';";
-        
-        $newContent = preg_replace($pattern, $replacement, $content);
-        
-        if ($newContent === $content) {
+        $patterns = [
+            // Class property
+            "/(private\s+\\\$version\s*=\s*')[^']+(');/",
+            // Global variable
+            "/(\\\$version\s*=\s*')[^']+(');/"
+        ];
+        $replacement = "\$version = '$newVersion';";
+
+        $newContent = preg_replace($patterns, $replacement, $content);
+
+        $updated = false;
+        foreach ($patterns as $pattern) {
+            $newContent = preg_replace(
+                $pattern,
+                "\$1{$newVersion}\$2;",
+                $content,
+                -1,
+                $count
+            );
+            if ($count) {
+                file_put_contents($this->buildScript, $newContent);
+                $updated = true;
+                break;
+            }
+        }
+
+        if (! $updated) {
             throw new Exception("Could not find version in build script");
         }
-        
-        file_put_contents($this->buildScript, $newContent);
     }
     
     private function updateManifest($newVersion)
@@ -80,8 +99,9 @@ class VersionBumper
     public function getCurrentVersion()
     {
         $content = file_get_contents($this->buildScript);
-        if (preg_match("/private \\\$version = '([^']+)';/", $content, $matches)) {
-            return $matches[1];
+        if (preg_match("/private\s+\\\$version\s*=\s*'([^']+)';/", $content, $m)
+         || preg_match("/\\\$version\s*=\s*'([^']+)';/", $content, $m)) {
+            return $m[1];
         }
         return null;
     }
