@@ -49,4 +49,7 @@
             <menu link="option=com_ccm&amp;view=migration" img="class:default">COM_CCM_SUBMENU_MIGRATION</menu>
         </submenu>
     </administration>
+
+    <extensionclass>Reem\Component\CCM\Administrator\Extension\CCMComponent</extensionclass>
+
 </extension>
