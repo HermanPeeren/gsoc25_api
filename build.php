@@ -10,7 +10,7 @@
 
 class ComponentBuilder
 {
-    private $version = '0.7.0';
+    private $version = '0.8.0-alpha';
     private $packageName = 'com_ccm';
     private $buildDir = 'dist';
     private $sourceDir = 'src';
