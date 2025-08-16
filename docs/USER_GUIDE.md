@@ -22,7 +22,7 @@ The Content Creation Management (CCM) component is a Joomla extension that enabl
 
 ### Joomla Installation
 
-1. Open your Joomla app
+1. Open your Joomla app *(Preferably a new instance)*
 2. Access the administrator panel
 3. Navigate to **System > Install > Extensions**
 4. Upload the zip file for the component
@@ -37,25 +37,32 @@ The component will automatically create the required database tables upon instal
 
 ### 1. Editing a CMS
 
-1. In Joomla Admin, go to **Components > CCM**
+1. In Joomla Admin, go to **Components > CMSs > CMS Management**
 2. Choose one of the CMSs
 3. Update the CMS details:
    - **Name**: Descriptive name for the CMS
    - **URL**: Base URL of the source CMS
-   - **Credentials**: API keys or authentication details. Refer to [Auth Guidance](AUTHENTICATION_GUIDE.md).
+   - **Credentials**: API keys or authentication details. Refer to [Auth Guidance](AUTHENTICATION_GUIDE.md) for developer details.
 
-### 2. Obtaining CMS Credentials
+### 2. Obtaining CMS Credentials & Adding them in Joomla CMS
 
 Before you can migrate content, you need to obtain the proper API credentials for each CMS:
 
 #### For WordPress
 
-**Generate Application Password** (Paid plans only):
+**Generate Application Password**:
    - Go to **My Sites → Settings → Security**
    - Scroll down to **Application Passwords**
    - Click **Create New Application Password**
-   - Enter name: "CMS Migration" *or name*
+   - Enter name: "CMS Migration" *or any preferred name*
    - Copy the generated password
+   - In CMS Management, choose "WordPress"
+   ![CMSs Page image](images/cmss.png)
+   - We need a base64 generator (e.g., [Base64 Encode](https://www.debugbear.com/basic-auth-header-generator))
+   put your WordPress username and password, then take the generated authentication (e.g. Authorization: Basic UmVlbTpQYXNzd29yZA==) 
+   ![WordPress CMS Auth image](images/wordpress%20auth.png)
+   - Add them in the WordPress auth
+   ![WordPress CMS Page image](images/wordpress%20cms.png)
 
 #### For Joomla
 1. **Create API Token**:
@@ -65,23 +72,19 @@ Before you can migrate content, you need to obtain the proper API credentials fo
    - Select appropriate **User** (should have necessary permissions)
    - Click **Save**
    - Copy the generated token
+   - In CMS Management, choose "Joomla"
+   - Add the generated token with 'Bearer' before it.
+   ![Joomla CMS Page image](images/joomla%20cms.png)
 
 > **Security Note**: Always use dedicated API credentials with minimal required permissions. Never use your main administrator password for API access.
 
 ### 3. Running a Migration
 
-1. Navigate to **Components > CCM > Migration**
+1. Navigate to **Components > CMSs > Migration**
 2. Select source and target CMS
-3. Choose content types to migrate:
-   - Categories
-   - Articles/Posts
-   - Media files
-   - Users *(future work)*
-
-> **Note:** It is important to migrate the referenced items first. For example, we need to migrate **categories first**, as articles/posts reference categories. Migrating articles before their referenced categories exist may result in missing or incorrect category assignments. Always follow this order: **Categories → Media files → Users → Articles/Posts**.
-
-4. Click **Apply Migration**
-5. Monitor progress in real-time
+3. Click **Apply Migration**
+4. At the end, monitor the success migration and the failed ones (if any).
+![success migration image](images/success%20migration.png)
 
 ### 4. Migration Process
 
@@ -91,3 +94,17 @@ The migration follows these steps:
 2. **CCM Conversion**: Transforms content to CCM standard format
 3. **Target Conversion**: Adapts CCM format to target CMS structure
 4. **Import**: Creates content in target CMS
+
+### 5. Limitations & Adjustments for the cusrrent WordPress > Joomla
+   - WordPress can have multiple categories, while Joomla uses a single category per article. So the migration process migrates only the first category attached with the post in WordPress.
+   - WordPress has comments while Joomla doesn't, so they aren't migrated.
+   - WordPress has Posts and Articles, both are migrated to Articles in Joomla.
+   - Duplicate entries can cause failure to all migrations. Prefer to apply the migration in a new Joomla website.
+   ![Partial Migration Failure image](images/partial%20failure%20migration.png)
+   - Media are migrated in "files" folder. The migration process creates "migration" folder and another folder is createds inside it with the name of the source CMS. Each time the migration is applied, a folder with the date now is created with all the media files.
+   ![media directories image](images/media.png)
+
+### 6. What is migrated now
+
+- **Content Types**: Categories, Tags, Media, Users, Articles, Menus, and Menu-Items
+- **Relationships**: Category and Tags associations, Media in the Articles text and User assignments

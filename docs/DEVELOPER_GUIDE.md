@@ -3,6 +3,7 @@
 ## 📋 Overview
 
 This guide provides technical details for developers working on the Content Creation Management (CCM) component. The CCM component enables seamless content migration between different Content Management Systems (CMS) using a Common Content Model (CCM) and Model-Driven Engineering (MDE) format.
+revise this
 
 ## 💻 Environment
 
@@ -88,8 +89,8 @@ env: {
 2. Map content types between a CMS and the CCM:
    - **Posts/Articles**: Map WordPress "posts" or Joomla "articles" to the CCM "ContentItem" type.
    - **Categories**: Align CMS-specific categories/taxonomies to the CCM "categories" property.
-   - **Users/Authors**: Map user or author fields to the CCM "author" definition. *(future work)*
-   - **Media**: Link media files (images, attachments) to the CCM "media" references. *(future work)*
+   - **Users/Authors**: Map user or author fields to the CCM "author" definition.
+   - **Media**: Link media files (images, attachments) to the CCM "media" references.
    - **Custom Fields**: Extend the mapping for any custom fields or metadata your CMS uses. *(future work)*
 
 ### Example Mapping File
