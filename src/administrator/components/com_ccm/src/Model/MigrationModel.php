@@ -595,8 +595,6 @@ class MigrationModel extends FormModel
                     } else {
                         $this->migrationMap[$targetType]['ids'][$oldId] = $newId;
                     }
-                } else {
-                    throw new \RuntimeException('Error extracting old/new IDs for mapping');
                 }
 
                 // Store URL mapping if both old and new URLs exist
@@ -614,8 +612,6 @@ class MigrationModel extends FormModel
                     
                     $newUrl = $newThumbPath ?: $newPath;
                     $this->migrationMap[$targetType]['urls'][$oldUrl] = $newUrl;
-                } else {
-                    throw new \RuntimeException('Error extracting old/new URLs for mapping');
                 }
             } else {
                 throw new \RuntimeException('Error migrating item #' . ($idx + 1) . ' - HTTP ' . $response->code . ': ' . $response->body);

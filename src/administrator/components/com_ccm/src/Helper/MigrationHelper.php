@@ -50,8 +50,6 @@ class MigrationHelper
      * Handle media upload - prepares data for upload
      */
     public static function handleMediaUpload($item, $sourceCmsName = 'wordpress', $migrationFolderName = null) {
-        error_log("[MigrationHelper] Starting media upload for item: " . json_encode($item));
-        
         $tempFile = self::downloadFile($item);
         if (!$tempFile) {
             throw new \RuntimeException('Failed to download media file');
@@ -65,7 +63,6 @@ class MigrationHelper
             // Clean up temp file
             if (file_exists($tempFile)) {
                 unlink($tempFile);
-                error_log("[MigrationHelper] Cleaned up temp file: $tempFile");
             }
         }
     }
@@ -77,12 +74,9 @@ class MigrationHelper
         $sourceUrl = $item['source_url'] ?? $item['URL'] ?? $item['url'] ?? '';
         
         if (empty($sourceUrl)) {
-            error_log("[MigrationHelper] No source URL found in item");
             return false;
         }
-        
-        error_log("[MigrationHelper] Downloading file from: $sourceUrl");
-        
+
         // Create temp file
         $tempFile = tempnam(sys_get_temp_dir(), 'ccm_media_');
         
@@ -91,16 +85,12 @@ class MigrationHelper
             $response = $http->get($sourceUrl);
             
             if ($response->code !== 200) {
-                error_log("[MigrationHelper] Failed to download file - HTTP {$response->code}");
                 return false;
             }
             
-            file_put_contents($tempFile, $response->body);
-            error_log("[MigrationHelper] Downloaded " . strlen($response->body));
-            
+            file_put_contents($tempFile, $response->body);            
             return $tempFile;
         } catch (\Exception $e) {
-            error_log("[MigrationHelper] Download exception: " . $e->getMessage());
             if (file_exists($tempFile)) {
                 unlink($tempFile);
             }
@@ -113,14 +103,12 @@ class MigrationHelper
      */
     private static function uploadFromFile($tempFile, $item, $sourceCmsName, $migrationFolderName = null) {
         $sourceUrl = $item['source_url'] ?? $item['URL'] ?? $item['url'] ?? '';
-        $fileName = basename(parse_url($sourceUrl, PHP_URL_PATH));
-        
-        error_log("[MigrationHelper] Preparing upload - File: $fileName");
-        
-        $fileContent = file_get_contents($tempFile);
+        $fileName  = basename(parse_url($sourceUrl, PHP_URL_PATH));
+                
+        $fileContent   = file_get_contents($tempFile);
         $base64Content = base64_encode($fileContent);
-        $fullPath = $migrationFolderName . '/' . $fileName;
-        
+        $fullPath      = $migrationFolderName . '/' . $fileName;
+
         $uploadData = [
             'path' => $fullPath,
             'content' => $base64Content,
