@@ -98,22 +98,13 @@ class MigrationModel extends FormModel
         $db->setQuery($query);
         $targetCms = $db->loadObject();
 
-        // error_log("[MigrationModel] Source CMS: {$sourceCms->name} ({$sourceCms->url})");
-        // error_log("[MigrationModel] Target CMS: {$targetCms->name} ({$targetCms->url})");
-        // error_log("[MigrationModel] Migration: $sourceType -> $targetType");
-
         $sourceItems = $this->getSourceItems($sourceCms, $sourceType);
-        // error_log("[MigrationModel] Retrieved " . count($sourceItems) . " items from source");
         
         $sourceToCcmItems = $this->convertSourceCmsToCcm($sourceCms, $sourceItems, $sourceType);
-        // error_log("[MigrationModel] Converted " . count($sourceToCcmItems) . " items to CCM format");
         
         $result           = $this->convertCcmToTargetCms($sourceToCcmItems, $targetCms, $targetType);
         $config           = $result['config'];
         $ccmToTargetItems = $result['items'];
-        
-        // error_log("[MigrationModel] Converted " . count($ccmToTargetItems) . " items to target format");
-        // error_log("[MigrationModel] Using config: " . json_encode($config));
 
         $targetMigrationStatus = $this->migrateItemsToTargetCms($targetCms, $targetType, $ccmToTargetItems, $config, $sourceCms);
 
@@ -129,10 +120,12 @@ class MigrationModel extends FormModel
         $schemaPath = dirname(__DIR__, 1) . '/Schema/';
         $schema = json_decode(file_get_contents($schemaPath . $sourceSchemaFile), true);
 
+        // get the endpoint last elements e.g. content/articles
         $endpointConfig = null;
         if (isset($schema['ContentItem']) && is_array($schema['ContentItem'])) {
             foreach ($schema['ContentItem'] as $contentItem) {
                 if (isset($contentItem['type']) && $contentItem['type'] === $sourceType) {
+                    // If the endpoint is not set explicitly in the json file, then take the "type" field as the endpoint
                     $endpointConfig = $contentItem['config'] ?? ['endpoint' => $sourceType];
                     break;
                 }
@@ -143,7 +136,7 @@ class MigrationModel extends FormModel
             throw new \RuntimeException("No endpoint configuration found for source type: $sourceType");
         }
 
-        $endpoint = $endpointConfig['endpoint'];
+        $endpoint  = $endpointConfig['endpoint'];
         $dependsOn = $endpointConfig['depends_on'] ?? null;
 
         // If the endpoint depends on another migrated type (e.g., menu items depending on menus)
@@ -152,9 +145,9 @@ class MigrationModel extends FormModel
                 $this->migrationMap = json_decode(file_get_contents($this->migrationMapFile), true) ?: [];
             }
 
-            $dependencyType = $dependsOn['type'];
+            $dependencyType  = $dependsOn['type'];
             $dependencyParam = $dependsOn['param'];
-            $dependencyIds = $this->migrationMap[$dependencyType]['ids'] ?? [];
+            $dependencyIds   = $this->migrationMap[$dependencyType]['ids'] ?? [];
 
             if (empty($dependencyIds)) {
                 throw new \RuntimeException("No migrated items of type '{$dependencyType}' found, which is a dependency for '{$sourceType}'.");
@@ -163,24 +156,24 @@ class MigrationModel extends FormModel
             $allItems = [];
             foreach ($dependencyIds as $oldId => $newId) {
                 $dependencyEndpoint = str_replace(':' . $dependencyParam, (string) $oldId, $endpoint);
-                $sourceEndpoint = $sourceUrl . '/' . $dependencyEndpoint;
-                error_log("[MigrationModel] Fetching source items from: $sourceEndpoint");
+                $sourceEndpoint     = $sourceUrl . '/' . $dependencyEndpoint;
 
                 $headers = ['Accept' => 'application/json'];
                 if ($sourceAuthentication) {
                     $authHeaders = MigrationHelper::parseAuthentication($sourceAuthentication);
-                    $headers = array_merge($headers, $authHeaders);
+                    $headers     = array_merge($headers, $authHeaders);
                 }
 
-                $sourceResponse = $this->http->get($sourceEndpoint, $headers);
+                $sourceResponse     = $this->http->get($sourceEndpoint, $headers);
                 $sourceResponseBody = json_decode($sourceResponse->body, true);
-                error_log("[MigrationModel] Menu Items - Source response body: " . $sourceResponse->body);
 
                 $items = $sourceResponseBody['items'] ?? ($sourceResponseBody[$sourceType] ?? $sourceResponseBody);
 
                 if (is_array($items)) {
                     foreach ($items as &$item) {
                         // Inject the original dependency ID for later mapping
+                        // e.g. for menu items, we need to keep track of the original menu ID, so we add it to the item
+                        // i.e. $item['original_menu_id'] = menu_source_id;
                         $item[$dependencyParam] = $oldId;
                     }
                     $allItems = array_merge($allItems, $items);
@@ -199,47 +192,38 @@ class MigrationModel extends FormModel
         if ($sourceAuthentication) {
             $authHeaders = MigrationHelper::parseAuthentication($sourceAuthentication);
             $headers = array_merge($headers, $authHeaders);
-            error_log("[MigrationModel] Using authentication headers: " . json_encode($authHeaders));
         }
 
-        $sourceResponse = $this->http->get($sourceEndpoint, $headers);
-        // error_log("[MigrationModel] Source response code: " . $sourceResponse->code);
-        // error_log("[MigrationModel] Source response body: " . $sourceResponse->body);
-
+        $sourceResponse     = $this->http->get($sourceEndpoint, $headers);
         $sourceResponseBody = json_decode($sourceResponse->body, true);
 
+        // Considering different ways for the GET API response
         if (is_array($sourceResponseBody) && isset($sourceResponseBody[$sourceType]) && is_array($sourceResponseBody[$sourceType])) {
             return $sourceResponseBody[$sourceType];
         } elseif (is_array($sourceResponseBody) && isset($sourceResponseBody['items']) && is_array($sourceResponseBody['items'])) {
-            // error_log("[MigrationModel] Found items under key: items");
             return $sourceResponseBody['items'];
         } elseif (is_array($sourceResponseBody)) {
-            // error_log("[MigrationModel] Source response body is array, returning as items");
             return $sourceResponseBody;
         }
 
-        // error_log("[MigrationModel] Could not find items to migrate in source response.");
         throw new \RuntimeException('Could not find items to migrate in source response.');
     }
 
     private function convertSourceCmsToCcm($sourceCms, $sourceItems, $sourceType) {
         $sourceSchemaFile = strtolower($sourceCms->name) . '-ccm.json';        
         $schemaPath       = dirname(__DIR__, 1) . '/Schema/';
-        // error_log("[MigrationModel] Loading source schema: " . $schemaPath . $sourceSchemaFile);
-        $schema = json_decode(file_get_contents($schemaPath . $sourceSchemaFile), true);
-        // error_log("schema: " . json_encode($schema, JSON_PRETTY_PRINT));
+        $schema           = json_decode(file_get_contents($schemaPath . $sourceSchemaFile), true);
+
         // Find the ContentItem with the matching type
         $sourceToCcm = [];
         if (isset($schema['ContentItem']) && is_array($schema['ContentItem'])) {
             foreach ($schema['ContentItem'] as $contentItem) {
                 if (isset($contentItem['type']) && $contentItem['type'] === $sourceType && isset($contentItem['properties'])) {
                     $sourceToCcm = $contentItem['properties'];
-                    // error_log("[MigrationModel] Found mapping for source type: $sourceType");
                     break;
                 }
             }
         }
-        // error_log("sourceToCcm: " . json_encode($sourceToCcm, JSON_PRETTY_PRINT));
 
         $ccmItems = [];
         foreach ($sourceItems as $item) {
@@ -256,8 +240,6 @@ class MigrationModel extends FormModel
             $ccmItems[] = $ccmItem;
         }
 
-        // error_log("[MigrationModel] Converted " . count($ccmItems) . " source items to CCM format.");
-        // error_log("[MigrationModel] CCM items: " . json_encode($ccmItems));
         return $ccmItems;
     }
 
@@ -265,6 +247,7 @@ class MigrationModel extends FormModel
         $targetSchemaFile = strtolower($targetCms->name) . '-ccm.json';
         $schemaPath       = dirname(__DIR__, 1) . '/Schema/';
         $ccmToTarget      = json_decode(file_get_contents($schemaPath . $targetSchemaFile), true);
+        
         $targetToCcm = [];
         $config = [];
         if (isset($ccmToTarget['ContentItem']) && is_array($ccmToTarget['ContentItem'])) {
@@ -283,9 +266,7 @@ class MigrationModel extends FormModel
 
         if (file_exists($this->migrationMapFile)) {
             $this->migrationMap = json_decode(file_get_contents($this->migrationMapFile), true) ?: [];
-            // error_log("[MigrationModel] Loaded migration map from file: " . json_encode($this->migrationMap, JSON_PRETTY_PRINT));
         } else {
-            // error_log("[MigrationModel] Migration map file does not exist: " . $this->migrationMapFile);
             throw new \RuntimeException('Migration map file does not exist: ' . $this->migrationMapFile);
         }
 
@@ -304,6 +285,8 @@ class MigrationModel extends FormModel
                         $value = $ccmItem[$ccmKey];
 
                         if ($format === 'array' && ($type === 'string' || $type === 'integer') && (is_array($value) || is_object($value))) {
+                            // Handle array in source -> array in target
+                            // e.g. tags in wordpress: tags:{"tag_name":{..tag_data}} is converted to tags:[id1, id2, ..]
                             $arr = is_object($value) ? (array)$value : $value;
                             $allIds = [];
 
@@ -325,6 +308,8 @@ class MigrationModel extends FormModel
                                 }
                             }
                         } elseif (($type === 'string' || $type === 'integer') && (is_array($value) || is_object($value))) {
+                            // Handle array in source -> one value in target
+                            // e.g. categories in wordpress: categories:{"category_name":{..category_data}} is converted to catid as one category id in joomla
                             $arr = is_object($value) ? (array)$value : $value;
                             $first = reset($arr);
                             if (is_array($first) && (isset($first['id']) || isset($first['ID']))) {
@@ -346,6 +331,9 @@ class MigrationModel extends FormModel
                         }
                     }
 
+                    // add the default value(if exists) for empty values
+                    // e.g. catid can't be empty in joomla.
+                    // For migrating pages from wordpress to joomla, we need to add default category bec, pages are not categorized in wordpress
                     if (empty($value) && isset($ccmMap['default'])) {
                         $value = $ccmMap['default'];
                     }
@@ -353,13 +341,10 @@ class MigrationModel extends FormModel
                     if (empty($value) && $format) {
                         switch ($format) {
                             case 'password':
-                                error_log("[MigrationModel] Generating password for the user: " . $ccmItem['username']);
                                 $value = UserHelper::genRandomPassword(16);
-                                error_log("[MigrationModel] Generated password: " . $value);
                                 break;
 
                             case 'alias':
-                                error_log("[MigrationModel] Formatting alias for the title: " . $ccmItem['title']);
                                 $value = OutputFilter::stringURLSafe($ccmItem['title']);
                                 break;
 
@@ -372,23 +357,20 @@ class MigrationModel extends FormModel
                                     $mapping = $this->migrationMap['menus']['ids'][$oldMenuId];
                                     if (is_array($mapping) && isset($mapping[1])) {
                                         $value = $mapping[1];
-                                        error_log("[MigrationModel] Mapped menutype for menu_id $oldMenuId: $value");
                                     }
                                 } else {
-                                    error_log("[MigrationModel] No menutype mapping found for menu_id $oldMenuId");
+                                    throw new Exception("No menutype mapping found for menu_id $oldMenuId");
                                 }
                                 break;
                         }
                     }
 
-                    // Format handling (array, url_replace, id_map)
                     if (!empty($value) && $format) {
                         switch ($format) {
                             case 'link_builder':
                                 // If this is a custom link menu-item, use the original URL instead of the template
                                 if (isset($ccmItem['type']) && $ccmItem['type'] === 'custom') {
                                     $value = $ccmItem['url'] ?? null;
-                                    error_log("[MigrationModel] Using custom link URL: " . $value);
                                     break;
                                 }
                                 $template = $ccmMap['template'] ?? '';
@@ -405,7 +387,6 @@ class MigrationModel extends FormModel
                                                 $mapType = 'categories';
                                             }
                                             $replaceValue = $this->migrationMap[$mapType]['ids'][$sourceId] ?? '';
-                                            error_log("[MigrationModel] Mapping ID for $mapType: $sourceId -> $replaceValue");
                                         }
                                     } elseif ($paramSource['source'] === 'map') {
                                         $sourceValue = $ccmItem[$paramSource['ccm_key']] ?? null;
@@ -416,7 +397,6 @@ class MigrationModel extends FormModel
                                     $builtLink = str_replace(':' . $paramKey, $replaceValue, $builtLink);
                                 }
                                 $value = $builtLink;
-                                error_log("[MigrationModel] Built link for key '$targetKey': " . json_encode($value));
                                 break;
                             case 'object_builder':
                                 $params = $ccmMap['params'] ?? [];
@@ -433,32 +413,28 @@ class MigrationModel extends FormModel
                                             $mappedId = $this->migrationMap[$mapType]['ids'][$sourceId] ?? null;
                                             if ($mappedId) {
                                                 $requestObject[$paramKey] = $mappedId;
-                                                error_log("[MigrationModel] Mapped ID for request object: $sourceId -> $mappedId ($mapType)");
                                             }
                                         }
                                     }
                                 }
                                 $value = $requestObject;
-                                error_log("[MigrationModel] Built object for key '$targetKey': " . json_encode($value));
                                 break;
                             case 'array':
                                 if (is_array($value)) {
                                     // Check if we have a role mapping configuration
-                                    error_log("ccmMap: " . json_encode($ccmMap));
                                     if (isset($ccmMap['map']) && is_array($ccmMap['map'])) {
                                         // Handle role mapping directly in the model
-                                        error_log("[MigrationModel] Role mapping configuration found for array value: " . json_encode($value));
                                         $mappedValues = [];
                                         foreach ($value as $arrayValue) {
                                             // Map roles using the provided mapping
+                                            // e.g. map the "editor" role in wordpress to the "editor" role id in joomla
                                             $mappedValue = $ccmMap['map'][$arrayValue] ?? ($ccmMap['default'] ?? $arrayValue);
-                                            error_log("[MigrationModel] Role mapping: $arrayValue -> $mappedValue");
                                             $mappedValues[] = $mappedValue;
                                         }
                                         $value = $mappedValues;
                                     } else {
-                                        // Handle numeric ID mapping (existing functionality)
-                                        error_log("[MigrationModel] Numeric ID mapping for array value: " . json_encode($value));
+                                        // Handle numeric ID mapping
+                                        // e.g. map the "123" item ID in wordpress to the "456" item id in joomla
                                         $mappedValues = [];
                                         foreach ($value as $arrayValue) {
                                             if (is_numeric($arrayValue) || (is_string($arrayValue) && ctype_digit(trim($arrayValue)))) {
@@ -493,6 +469,8 @@ class MigrationModel extends FormModel
 
                             case 'url_replace':
                                 if (is_string($value)) {
+                                    // Handle the links within the text
+                                    // e.g. <a href="old-url">Link</a> or <img src="old-image.jpg" />
                                     foreach ($this->migrationMap as $entityType => $mappings) {
                                         if (isset($mappings['urls']) && is_array($mappings['urls'])) {
                                             foreach ($mappings['urls'] as $oldUrl => $newUrl) {
@@ -524,21 +502,16 @@ class MigrationModel extends FormModel
 
                             case 'id_map':
                                 if (!empty($value) && ($type === 'string' || $type === 'integer')) {
-                                    // Handle object with ID extraction (like author object)
+                                    // Handle array with ID extraction (like author array, it is just one author)
                                     if (is_array($value) && isset($value['ID'])) {
                                         $value = $value['ID'];
-                                        error_log("[MigrationModel] Extracted ID from object for id_map: " . $value);
                                     } elseif (is_object($value) && isset($value->ID)) {
+                                        // Handle list of arrays (like categories)
                                         $value = $value->ID;
-                                        error_log("[MigrationModel] Extracted ID from object for id_map: " . $value);
                                     }
                                     $value = MigrationHelper::mapEntityId($value, $this->migrationMap, $entityType);
                                 }
                                 break;
-                        }
-                    } else {
-                        if (($type === 'string' || $type === 'integer') && !empty($value)) {
-                            $value = MigrationHelper::mapEntityId($value, $this->migrationMap, $entityType);
                         }
                     }
 
@@ -559,10 +532,6 @@ class MigrationModel extends FormModel
     }
 
     private function migrateItemsToTargetCms($targetCms, $targetType, $ccmToTargetItems, $config = [], $sourceCms = null) {
-        // error_log("[MigrationModel] Starting migration to target CMS: {$targetCms->name}");
-        // error_log("[MigrationModel] Target type: $targetType, Items count: " . count($ccmToTargetItems));
-        // error_log("[MigrationModel] Config: " . json_encode($config));
-        
         $targetAuthentication = $targetCms->authentication;        
         $endpoint             = $config['endpoint'] ?? $targetType;
         $targetUrl            = $targetCms->url;
@@ -575,56 +544,40 @@ class MigrationModel extends FormModel
             if ($targetType === 'media') {
                 $dateTimeFolder = date('Y_m_d_H_i_s'); // e.g., "2025_07_19_14_30_45"
                 $migrationFolderName_ForMedia = "migration/{$sourceCmsName}/{$dateTimeFolder}";
-                error_log("[MigrationModel] Using migration folder: $migrationFolderName_ForMedia");
             }
         }
 
         foreach ($ccmToTargetItems as $idx => $item) {
-            error_log("[MigrationModel] Processing item #" . ($idx + 1) . "/" . count($ccmToTargetItems));
-            error_log("[MigrationModel] Item data: " . json_encode($item, JSON_UNESCAPED_SLASHES));
-            
             $headers = [
                 'Accept' => 'application/vnd.api+json',
+                'Content-Type' => 'application/json'
             ];
 
             if ($targetAuthentication) {
                 $authHeaders = MigrationHelper::parseAuthentication($targetAuthentication);
                 $headers = array_merge($headers, $authHeaders);
-                error_log("[MigrationModel] Using authentication headers: " . json_encode($authHeaders));
             }
 
             if ($targetType === 'media') {
-                error_log("[MigrationModel] Using JSON media upload for item #" . ($idx + 1));
                 $sourceUrl = $item['source_url'] ?? $item['URL'] ?? $item['url'] ?? '';
                 if (!MigrationHelper::isSupportedFileType($sourceUrl)) {
-                    $fileName = basename(parse_url($sourceUrl, PHP_URL_PATH));
-                    $extension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
-                    error_log("[MigrationModel] Skipping unsupported file type: $fileName (.$extension)");
-                    continue; // Skip this item and move to next
+                    continue;
                 }
 
                 $uploadData = MigrationHelper::handleMediaUpload($item, $sourceCmsName, $migrationFolderName_ForMedia);
-                $headers['Content-Type'] = 'application/json';
-                error_log("[MigrationModel] headers: " . json_encode($headers));
-                error_log("[MigrationModel] targetEndpoint: $targetEndpoint");
+
                 $response = $this->http->post($targetEndpoint, json_encode($uploadData), $headers);
             } else {
-                error_log("[MigrationModel] Using JSON POST for item #" . ($idx + 1));
-                $headers['Content-Type'] = 'application/json';
                 $requestBody = json_encode($item);
-                error_log("[MigrationModel] Request body: " . $requestBody);
+
                 $response = $this->http->post($targetEndpoint, $requestBody, $headers);
             }
 
-            error_log("[MigrationModel] Response for item #" . ($idx + 1) . " - Code: {$response->code}, Body: " . substr($response->body, 0, 1000));
-
             if ($response->code === 201 || $response->code === 200) {
-                error_log("[MigrationModel] Successfully migrated item #" . ($idx + 1));
                 $responseBody = json_decode($response->body, true);
+
                 $newId = $responseBody['id'] ?? $responseBody["data"]['id'] ?? $responseBody['ID'] ?? $responseBody["data"]['ID'] ?? $responseBody['Id'] ?? $responseBody["data"]['Id'] ?? null;
                 $oldId = $item['id'] ?? $item["data"]['id'] ?? $item['ID'] ?? $item["data"]['ID'] ?? $item['Id'] ?? $item["data"]['Id'] ?? null;
-
-                error_log("[MigrationModel] ID extraction - Old ID: $oldId, New ID: $newId");
 
                 if ($oldId && $newId) {
                     if (!isset($this->migrationMap[$targetType])) {
@@ -636,25 +589,21 @@ class MigrationModel extends FormModel
                     
                     // For menus, store both newId and menutype
                     if ($targetType === 'menus') {
-                        error_log("[MigrationModel] Storing menu item with menutype for item: " . json_encode($item));
                         $menutype = $item['menutype'] ?? $item['alias'] ?? $item['slug'] ?? '';
+
                         $this->migrationMap[$targetType]['ids'][$oldId] = [$newId, $menutype];
                     } else {
                         $this->migrationMap[$targetType]['ids'][$oldId] = $newId;
                     }
-                    error_log("[MigrationModel] Added to ID map: $targetType.ids[$oldId] = $newId");
                 } else {
-                    error_log("[MigrationModel] Warning: Could not extract old/new IDs for mapping");
+                    throw new \RuntimeException('Error extracting old/new IDs for mapping');
                 }
 
                 // Store URL mapping if both old and new URLs exist
-                $oldUrl = $item['source_url'] ?? $item['URL'] ?? $item['url'] ?? '';
-                $newPath = $responseBody['data']['attributes']['path'] ?? $responseBody['attributes']['path'] ?? $responseBody['path'] ?? '';
+                $oldUrl       = $item['source_url'] ?? $item['URL'] ?? $item['url'] ?? '';
+                $newPath      = $responseBody['data']['attributes']['path'] ?? $responseBody['attributes']['path'] ?? $responseBody['path'] ?? '';
                 $newThumbPath = $responseBody['data']['attributes']['thumb_path'] ?? $responseBody['attributes']['thumb_path'] ?? $responseBody['thumb_path'] ?? '';
 
-                error_log("[MigrationModel] URL mapping check - oldUrl: '$oldUrl', newPath: '$newPath', newThumbPath: '$newThumbPath'");
-                // error_log("[MigrationModel] Full response structure: " . json_encode($responseBody, JSON_PRETTY_PRINT));
-                
                 if ($oldUrl && ($newPath || $newThumbPath)) {
                     if (!isset($this->migrationMap[$targetType])) { 
                         $this->migrationMap[$targetType] = [];
@@ -663,26 +612,18 @@ class MigrationModel extends FormModel
                         $this->migrationMap[$targetType]['urls'] = [];
                     }
                     
-                    // Use the actual accessible URL (thumb_path) if available, otherwise use path
                     $newUrl = $newThumbPath ?: $newPath;
                     $this->migrationMap[$targetType]['urls'][$oldUrl] = $newUrl;
-                    error_log("[MigrationModel] ✓ Added to URL map: $targetType.urls['$oldUrl'] = '$newUrl'");
                 } else {
-                    error_log("[MigrationModel] ✗ No URL mapping stored - missing oldUrl or newUrl");
+                    throw new \RuntimeException('Error extracting old/new URLs for mapping');
                 }
             } else {
-                error_log("[MigrationModel] Migration failed for item #" . ($idx + 1) . " - HTTP {$response->code}");
-                error_log("[MigrationModel] Error response body: " . $response->body);
                 throw new \RuntimeException('Error migrating item #' . ($idx + 1) . ' - HTTP ' . $response->code . ': ' . $response->body);
             }
         }
-        error_log("[MigrationModel] Migration completed. Final migration map: " . json_encode($this->migrationMap, JSON_PRETTY_PRINT));
-        error_log("[MigrationModel] Saving migration map to file: " . $this->migrationMapFile);
         $saveResult = file_put_contents($this->migrationMapFile, json_encode($this->migrationMap, JSON_PRETTY_PRINT));
-        if ($saveResult !== false) {
-            error_log("[MigrationModel] ✓ Migration map saved successfully. Bytes written: $saveResult");
-        } else {
-            error_log("[MigrationModel] ✗ Failed to save migration map to file");
+        if ($saveResult === false) {
+            throw new \RuntimeException('✗ Failed to save migration map to file');
         }
         return true;
     }
