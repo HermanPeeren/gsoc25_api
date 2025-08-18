@@ -286,6 +286,7 @@
               "ccm_key": "type",
               "map": {
                 "post": "article",
+                "page": "article",
                 "category": "category&layout=blog"
               }
             }
