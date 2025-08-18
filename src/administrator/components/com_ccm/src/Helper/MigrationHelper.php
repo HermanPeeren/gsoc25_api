@@ -172,4 +172,108 @@ class MigrationHelper
         }
         return $value;
     }
+
+    /**
+     * Build a link or object based on the CCM item and mapping
+     *
+     * @param array $ccmItem The CCM item data
+     * @param array $ccmMap The CCM mapping configuration
+     * @param array $migrationMap The migration map
+     * @return string|array The built link or object
+     */
+    public static function buildLink($ccmItem, $ccmMap, $migrationMap) {
+        $template = $ccmMap['template'] ?? '';
+        $params = $ccmMap['params'] ?? [];
+        $builtLink = $template;
+        foreach ($params as $paramKey => $paramSource) {
+            $replaceValue = '';
+            if ($paramSource['source'] === 'id_map') {
+                $sourceId = $ccmItem[$paramSource['ccm_key']] ?? null;
+                if ($sourceId) {
+                    $mapType = $paramSource['map_type'];
+                    // Determine map_type based on content type if needed
+                    if ($mapType === 'articles' && isset($ccmItem['type']) && $ccmItem['type'] === 'category') {
+                        $mapType = 'categories';
+                    }
+                    $replaceValue = $migrationMap[$mapType]['ids'][$sourceId] ?? '';
+                }
+            } elseif ($paramSource['source'] === 'map') {
+                $sourceValue = $ccmItem[$paramSource['ccm_key']] ?? null;
+                if ($sourceValue && isset($paramSource['map'][$sourceValue])) {
+                    $replaceValue = $paramSource['map'][$sourceValue];
+                }
+            }
+            $builtLink = str_replace(':' . $paramKey, $replaceValue, $builtLink);
+        }
+        return $builtLink;
+    }
+
+    /**
+     * Build an object based on the CCM item and mapping
+     *
+     * @param array $ccmItem The CCM item data
+     * @param array $ccmMap The CCM mapping configuration
+     * @param array $migrationMap The migration map
+     * @return array The built object
+     */
+    public static function buildObject($ccmItem, $ccmMap, $migrationMap) {
+        $params = $ccmMap['params'] ?? [];
+        $requestObject = [];
+        foreach ($params as $paramKey => $paramSource) {
+            if ($paramSource['source'] === 'id_map') {
+                $sourceId = $ccmItem[$paramSource['ccm_key']] ?? null;
+                if ($sourceId) {
+                    $mapType = $paramSource['map_type'];
+                    // Determine map_type based on content type if needed
+                    if ($mapType === 'articles' && isset($ccmItem['type']) && $ccmItem['type'] === 'category') {
+                        $mapType = 'categories';
+                    }
+                    $mappedId = $migrationMap[$mapType]['ids'][$sourceId] ?? null;
+                    if ($mappedId) {
+                        $requestObject[$paramKey] = $mappedId;
+                    }
+                }
+            }
+        }
+        return $requestObject;
+    }
+
+    /**
+     * Replace URLs in the given value based on the migration map.
+     *
+     * @param string $value The input value
+     * @param array $migrationMap The migration map
+     * @return string The value with replaced URLs
+     */
+    public static function replaceUrls($value, $migrationMap) {
+        // Handle the links within the text
+        // e.g. <a href="old-url">Link</a> or <img src="old-image.jpg" />
+        foreach ($migrationMap as $entityType => $mappings) {
+            if (isset($mappings['urls']) && is_array($mappings['urls'])) {
+                foreach ($mappings['urls'] as $oldUrl => $newUrl) {
+                    $oldUrlParsed = parse_url($oldUrl);
+                    $oldPath = $oldUrlParsed['path'];
+                    $oldPathInfo = pathinfo($oldPath);
+                    $oldBasename = $oldPathInfo['filename'];
+                    $oldExtension = $oldPathInfo['extension'];
+                    $oldDirectory = dirname($oldPath);
+
+                    $basePattern = $oldUrlParsed['scheme'] . '://' . $oldUrlParsed['host'];
+                    if (isset($oldUrlParsed['port'])) {
+                        $basePattern .= ':' . $oldUrlParsed['port'];
+                    }
+                    $basePattern .= $oldDirectory . '/' . $oldBasename;
+
+                    $pattern = '/' . preg_quote($basePattern, '/') . '(?:-\d+x\d+)?\.' . preg_quote($oldExtension, '/') . '/';
+                    $matches = [];
+                    if (preg_match_all($pattern, $value, $matches)) {
+                        foreach ($matches[0] as $foundUrl) {
+                            $value = str_replace($foundUrl, $newUrl, $value);
+                        }
+                    }
+                }
+            }
+        }
+        return $value;
+    }
 }

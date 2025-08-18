@@ -12,7 +12,6 @@
         "alias": "alias",
         "articletext": {
           "ccm": "context",
-          "type": "string",
           "format": "url_replace"
         },
         "url": "url",

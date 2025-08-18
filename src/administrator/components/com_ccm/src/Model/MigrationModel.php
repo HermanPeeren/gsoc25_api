@@ -284,42 +284,33 @@ class MigrationModel extends FormModel
                     if ($ccmKey && isset($ccmItem[$ccmKey])) {
                         $value = $ccmItem[$ccmKey];
 
-                        if ($format === 'array' && ($type === 'string' || $type === 'integer') && (is_array($value) || is_object($value))) {
-                            // Handle array in source -> array in target
-                            // e.g. tags in wordpress: tags:{"tag_name":{..tag_data}} is converted to tags:[id1, id2, ..]
+                        if (($type === 'string' || $type === 'integer') && (is_array($value) || is_object($value))) {
                             $arr = is_object($value) ? (array)$value : $value;
-                            $allIds = [];
 
-                            foreach ($arr as $item) {
-                                if (is_array($item) && (isset($item['id']) || isset($item['ID']))) {
-                                    $id = $item['id'] ?? $item['ID'];
-                                    $allIds[] = $id;
+                            if ($format === 'array') {
+                                // Source array → array in target
+                                // e.g. tags in wordpress: tags:{"tag_name":{..tag_data}} is converted to tags:[id1, id2, ..]
+                                $allIds = [];
+                                foreach ($arr as $item) {
+                                    if (is_array($item) && (isset($item['id']) || isset($item['ID']))) {
+                                        $allIds[] = $item['id'] ?? $item['ID'];
+                                    }
                                 }
-                            }
-
-                            if (!empty($allIds)) {
-                                $value = $allIds;
+                                $value = !empty($allIds) ? $allIds : reset($arr);
                             } else {
+                                // Source array → single value in target
+                                // e.g. categories in wordpress: categories:{"category_name":{..category_data}} is converted to catid as one category id in joomla
                                 $first = reset($arr);
-                                if (is_array($first)) {
+                                if (is_array($first) && (isset($first['id']) || isset($first['ID']))) {
+                                    $value = $first['id'] ?? $first['ID'];
+                                } elseif (is_array($first)) {
                                     $value = reset($first);
-                                } else {
-                                    $value = $first;
                                 }
-                            }
-                        } elseif (($type === 'string' || $type === 'integer') && (is_array($value) || is_object($value))) {
-                            // Handle array in source -> one value in target
-                            // e.g. categories in wordpress: categories:{"category_name":{..category_data}} is converted to catid as one category id in joomla
-                            $arr = is_object($value) ? (array)$value : $value;
-                            $first = reset($arr);
-                            if (is_array($first) && (isset($first['id']) || isset($first['ID']))) {
-                                $value = $first['id'] ?? $first['ID'];
-                            } elseif (is_array($first)) {
-                                $value = reset($first);
                             }
                         }
 
-                        // Handle value mapping (skip for array values as they need special handling)
+                        // Handle value mapping
+                        // e.g. status is publish(string) in wordpress while it is 1(int) in joomla
                         if (isset($ccmMap['map']) && is_array($ccmMap['map']) && !is_array($value)) {
                             $value = $ccmMap['map'][$value] ?? ($ccmMap['default'] ?? $value);
                         }
@@ -373,51 +364,10 @@ class MigrationModel extends FormModel
                                     $value = $ccmItem['url'] ?? null;
                                     break;
                                 }
-                                $template = $ccmMap['template'] ?? '';
-                                $params = $ccmMap['params'] ?? [];
-                                $builtLink = $template;
-                                foreach ($params as $paramKey => $paramSource) {
-                                    $replaceValue = '';
-                                    if ($paramSource['source'] === 'id_map') {
-                                        $sourceId = $ccmItem[$paramSource['ccm_key']] ?? null;
-                                        if ($sourceId) {
-                                            $mapType = $paramSource['map_type'];
-                                            // Determine map_type based on content type if needed
-                                            if ($mapType === 'articles' && isset($ccmItem['type']) && $ccmItem['type'] === 'category') {
-                                                $mapType = 'categories';
-                                            }
-                                            $replaceValue = $this->migrationMap[$mapType]['ids'][$sourceId] ?? '';
-                                        }
-                                    } elseif ($paramSource['source'] === 'map') {
-                                        $sourceValue = $ccmItem[$paramSource['ccm_key']] ?? null;
-                                        if ($sourceValue && isset($paramSource['map'][$sourceValue])) {
-                                            $replaceValue = $paramSource['map'][$sourceValue];
-                                        }
-                                    }
-                                    $builtLink = str_replace(':' . $paramKey, $replaceValue, $builtLink);
-                                }
-                                $value = $builtLink;
+                                $value = MigrationHelper::buildLink($ccmItem, $ccmMap, $this->migrationMap);
                                 break;
                             case 'object_builder':
-                                $params = $ccmMap['params'] ?? [];
-                                $requestObject = [];
-                                foreach ($params as $paramKey => $paramSource) {
-                                    if ($paramSource['source'] === 'id_map') {
-                                        $sourceId = $ccmItem[$paramSource['ccm_key']] ?? null;
-                                        if ($sourceId) {
-                                            $mapType = $paramSource['map_type'];
-                                            // Determine map_type based on content type if needed
-                                            if ($mapType === 'articles' && isset($ccmItem['type']) && $ccmItem['type'] === 'category') {
-                                                $mapType = 'categories';
-                                            }
-                                            $mappedId = $this->migrationMap[$mapType]['ids'][$sourceId] ?? null;
-                                            if ($mappedId) {
-                                                $requestObject[$paramKey] = $mappedId;
-                                            }
-                                        }
-                                    }
-                                }
-                                $value = $requestObject;
+                                $value = MigrationHelper::buildObject($ccmItem, $ccmMap, $this->migrationMap);
                                 break;
                             case 'array':
                                 if (is_array($value)) {
@@ -468,38 +418,8 @@ class MigrationModel extends FormModel
                                 break;
 
                             case 'url_replace':
-                                if (is_string($value)) {
-                                    // Handle the links within the text
-                                    // e.g. <a href="old-url">Link</a> or <img src="old-image.jpg" />
-                                    foreach ($this->migrationMap as $entityType => $mappings) {
-                                        if (isset($mappings['urls']) && is_array($mappings['urls'])) {
-                                            foreach ($mappings['urls'] as $oldUrl => $newUrl) {
-                                                $oldUrlParsed = parse_url($oldUrl);
-                                                $oldPath = $oldUrlParsed['path'];
-                                                $oldPathInfo = pathinfo($oldPath);
-                                                $oldBasename = $oldPathInfo['filename'];
-                                                $oldExtension = $oldPathInfo['extension'];
-                                                $oldDirectory = dirname($oldPath);
-
-                                                $basePattern = $oldUrlParsed['scheme'] . '://' . $oldUrlParsed['host'];
-                                                if (isset($oldUrlParsed['port'])) {
-                                                    $basePattern .= ':' . $oldUrlParsed['port'];
-                                                }
-                                                $basePattern .= $oldDirectory . '/' . $oldBasename;
-
-                                                $pattern = '/' . preg_quote($basePattern, '/') . '(?:-\d+x\d+)?\.' . preg_quote($oldExtension, '/') . '/';
-                                                $matches = [];
-                                                if (preg_match_all($pattern, $value, $matches)) {
-                                                    foreach ($matches[0] as $foundUrl) {
-                                                        $value = str_replace($foundUrl, $newUrl, $value);
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
+                                $value = MigrationHelper::buildLink($ccmItem, $ccmMap, $this->migrationMap);
                                 break;
-
                             case 'id_map':
                                 if (!empty($value) && ($type === 'string' || $type === 'integer')) {
                                     // Handle array with ID extraction (like author array, it is just one author)
