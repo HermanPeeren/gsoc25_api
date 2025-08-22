@@ -276,4 +276,67 @@ class MigrationHelper
         }
         return $value;
     }
+
+    public static function createCustomFields($targetUrl, $endpoint, $targetType, $fields, $targetCms)
+    {
+        $fieldsEndpoint = 'fields/' . $endpoint;
+        
+        $headers = [
+            'Accept' => 'application/vnd.api+json',
+            'Content-Type' => 'application/json',
+        ];
+
+        if ($targetCms->authentication) {
+            $authHeaders = self::parseAuthentication($targetCms->authentication);
+            $headers = array_merge($headers, $authHeaders);
+        }
+
+        $createdFields = [];
+        
+        foreach ($fields as $fieldName => $fieldValue) {
+            if (!is_string($fieldName)) {
+                throw new \RuntimeException("Invalid custom field name: " . print_r($fieldName, true));
+            }
+            
+            if ($fieldName[0] === '_' || isset($createdFields[$fieldName])) {
+                continue;
+            }
+            // Determine context based on endpoint
+            $contextParts = explode('/', $endpoint);
+            $component = 'com_' . $contextParts[0];
+            $entityType = isset($contextParts[1]) ? rtrim($contextParts[1], 's') : $targetType;
+            $context = $component . '.' . $entityType;
+
+            $createdFields[$fieldName] = true;
+
+            $fieldData = [
+                "context" => $context,
+                "description" => "",
+                "language" => "*",
+                "params" => [
+                    "suffix" => ""
+                ],
+                "title" => $fieldName,
+                "label" => $fieldName,
+                "type" => "text",
+                "required" => 0,
+                "state" => 1,
+                "access" => 1
+            ];
+
+            error_log("[MigrationModel] Creating custom field: $fieldName");
+            error_log("[MigrationModel] Creating custom context: $context");
+            error_log("[MigrationModel] Field data: " . json_encode($fieldData));
+
+            $http = HttpFactory::getHttp();
+            error_log("url: " . $targetUrl . '/' . $fieldsEndpoint);
+            $response = $http->post($targetUrl . '/' . $fieldsEndpoint, json_encode($fieldData), $headers);
+
+            if ($response->code !== 201 && $response->code !== 200) {
+                throw new \RuntimeException("Failed to create custom field '$fieldName' - HTTP " . $response->code . ": " . $response->body);
+            }
+
+            error_log("[MigrationModel] Created custom field: $fieldName");
+        }
+    }
 }

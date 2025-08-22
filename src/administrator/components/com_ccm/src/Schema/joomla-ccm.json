@@ -62,7 +62,10 @@
         },
         "access": null,
         "hits": null,
-        "metadata": "meta",
+        "custom_fields": {
+          "ccm": "metadata",
+          "format": "custom_fields"
+        },
         "featured": null,
         "note": null,
         "author": "author",

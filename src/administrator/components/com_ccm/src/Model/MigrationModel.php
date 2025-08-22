@@ -99,7 +99,7 @@ class MigrationModel extends FormModel
         $targetCms = $db->loadObject();
 
         $sourceItems = $this->getSourceItems($sourceCms, $sourceType);
-        
+
         $sourceToCcmItems = $this->convertSourceCmsToCcm($sourceCms, $sourceItems, $sourceType);
         
         $result           = $this->convertCcmToTargetCms($sourceToCcmItems, $targetCms, $targetType);
@@ -271,6 +271,8 @@ class MigrationModel extends FormModel
         }
 
         $targetItems = [];
+        $customFields = [];
+
         foreach ($ccmItems as $ccmItem) {
             $targetItem = [];
             foreach ($targetToCcm as $targetKey => $ccmMap) {
@@ -283,6 +285,24 @@ class MigrationModel extends FormModel
 
                     if ($ccmKey && isset($ccmItem[$ccmKey])) {
                         $value = $ccmItem[$ccmKey];
+
+                        // Handle custom fields
+                        if ($format === 'custom_fields')
+                        if ($format === 'custom_fields' && is_array($value)) {
+                            foreach ($value as $fieldName => $fieldValues) {
+                                if (strpos($fieldName, '_') === 0) {
+                                    continue;
+                                }
+
+                                if (!is_string($fieldName)) {
+                                    throw new \RuntimeException("Invalid custom field name: " . print_r($fieldName, true));
+                                }
+
+                                $targetItem[$fieldName] = is_array($fieldValues) ? reset($fieldValues) : $fieldValues;
+                                $targetItem["custom_fields"][$fieldName] = $targetItem[$fieldName];
+                            }
+                            continue;
+                        }
 
                         if (($type === 'string' || $type === 'integer') && (is_array($value) || is_object($value))) {
                             $arr = is_object($value) ? (array)$value : $value;
@@ -442,6 +462,14 @@ class MigrationModel extends FormModel
                     }
                 }
             }
+            // Add custom fields to the target item
+            foreach ($customFields as $fieldName => $fieldValue) {
+                if (!is_string($fieldName)) {
+                    throw new \RuntimeException("Invalid custom field name: " . print_r($fieldName, true));
+                }
+                $targetItem[$fieldName] = is_array($fieldValue) ? reset($fieldValue) : $fieldValue;
+            }
+
             $targetItems[] = $targetItem;
         }
 
@@ -456,6 +484,25 @@ class MigrationModel extends FormModel
         $endpoint             = $config['endpoint'] ?? $targetType;
         $targetUrl            = $targetCms->url;
         $targetEndpoint       = $targetUrl . '/' . $endpoint;
+
+        // Collect all unique custom fields from the items
+        $allCustomFields = [];
+        foreach ($ccmToTargetItems as $item) {
+            error_log("Processing item: " . print_r($item, true));
+            if (!empty($item['custom_fields']) && is_array($item['custom_fields'])) {
+                foreach ($item['custom_fields'] as $fieldName => $fieldValue) {
+                    if ($fieldName[0] !== '_' && !isset($allCustomFields[$fieldName])) {
+                        $allCustomFields[$fieldName] = $fieldValue;
+                    }
+                }
+            }
+        }
+
+        error_log("Collected Custom Fields: " . print_r($allCustomFields, true));
+        error_log("Custom Fields in migrateItemsToTargetCms: " . print_r($allCustomFields, true));
+        if (!empty($allCustomFields)) {
+            MigrationHelper::createCustomFields($targetUrl, $endpoint, $targetType, $allCustomFields, $targetCms);
+        }
 
         // Create migration folder name once for this entire migration batch
         if ($targetType === 'media') {
