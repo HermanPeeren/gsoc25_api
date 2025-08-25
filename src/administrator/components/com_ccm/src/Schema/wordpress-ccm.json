@@ -2,6 +2,9 @@
   "ContentItem": [
     {
       "type": "posts",
+      "config": {
+        "endpoint": "wp-json/wp/v2/posts"
+      },
       "properties": {
         "ID": "id",
         "site_ID": null,
@@ -57,6 +60,9 @@
     },
     {
       "type": "pages",
+      "config": {
+        "endpoint": "wp-json/wp/v2/pages"
+      },
       "properties": {
         "ID": "id",
         "site_ID": null,
@@ -112,6 +118,9 @@
     },
     {
       "type": "categories",
+      "config": {
+        "endpoint": "wp-json/wp/v2/categories"
+      },
       "properties": {
         "ID": "id",
         "site_ID": null,
@@ -129,6 +138,9 @@
     },
     {
       "type": "media",
+      "config": {
+        "endpoint": "wp-json/wp/v2/media"
+      },
       "properties": {
         "ID": "id",
         "title": "title",
@@ -159,6 +171,9 @@
     },
     {
       "type": "tags",
+      "config": {
+        "endpoint": "wp-json/wp/v2/tags"
+      },
       "properties": {
         "ID": "id",
         "name": "title",
@@ -171,6 +186,9 @@
     },
     {
       "type": "menus",
+      "config": {
+        "endpoint": "wp-json/wp/v2/menus"
+      },
       "properties": {
         "ID": "id",
         "name": "title",
@@ -184,7 +202,7 @@
     {
       "type": "menu_items",
       "config": {
-        "endpoint": "menus/:menu_id/items",
+        "endpoint": "wp-json/wp/v2/menus/:menu_id/items",
         "depends_on": {
           "type": "menus",
           "param": "menu_id"
@@ -208,6 +226,9 @@
     },
     {
       "type": "users",
+      "config": {
+        "endpoint": "wp-json/wp/v2/users"
+      },
       "properties": {
         "ID": "id",
         "login": "login",

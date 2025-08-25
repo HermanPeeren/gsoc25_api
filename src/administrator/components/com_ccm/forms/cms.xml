@@ -14,10 +14,10 @@
         required="true"
     />
     <field
-        name="authentication"
+        name="credentials"
         type="textarea"
-        label="COM_CCM_CONFIG_AUTHENTICATION_LABEL"
-        description="COM_CCM_CONFIG_AUTHENTICATION_DESC"
+        label="COM_CCM_CONFIG_CREDENTIALS_LABEL"
+        description="COM_CCM_CONFIG_CREDENTIALS_DESC"
         required="true"
         rows="8"
         cols="50"

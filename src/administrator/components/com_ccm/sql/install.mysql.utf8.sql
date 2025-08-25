@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS `#__ccm_cms` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL DEFAULT '',
   `url` varchar(255) NOT NULL DEFAULT '',
-  `authentication` JSON DEFAULT NULL,
+  `credentials` varchar(255) DEFAULT NULL,
   `content_keys_types` JSON DEFAULT NULL,
   `ccm_mapping` JSON DEFAULT NULL,
   `created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,

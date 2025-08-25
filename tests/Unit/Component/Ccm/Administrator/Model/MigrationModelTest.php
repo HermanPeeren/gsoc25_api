@@ -50,7 +50,7 @@ class MigrationModelTest extends UnitTestCase
         $sourceCms  = (object)[ 
             'name' => 'wordpress', 
             'url' => 'https://example.com/api',
-            'authentication' => '{"type":"none"}'
+            'credentials' => '{"type":"none"}'
         ];
         $sourceType = 'posts';
 

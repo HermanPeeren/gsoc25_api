@@ -33,11 +33,11 @@ class CmssModel extends ListModel {
         $app   = Factory::getApplication();
 
         // define the limit of the pagination
-        $value = $app->input->get('limit', $app->get('list_limit', 0), 'uint');
+        $value = $app->getInput()->get('limit', $app->get('list_limit', 0), 'uint');
         $this->setState('list.limit', $value);
 
         // define the start point for the listing
-        $value = $app->input->get('limitstart', 0, 'uint');
+        $value = $app->getInput()->get('limitstart', 0, 'uint');
         $this->setState('list.start', $value);
 
         // request to get the search filter

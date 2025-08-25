@@ -1,6 +1,6 @@
 describe('CCM CMS Admin', () => {
   beforeEach(() => {
-    cy.db_createCms({ name: 'Test CMS', authentication: '{}' });
+    cy.db_createCms({ name: 'Test CMS', credentials: '' });
     cy.doAdministratorLogin();
     cy.visit('/administrator/index.php?option=com_ccm&view=cmss');
   });

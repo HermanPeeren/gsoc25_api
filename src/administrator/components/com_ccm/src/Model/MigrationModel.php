@@ -34,8 +34,6 @@ class MigrationModel extends FormModel
             $http = null;
         }
         $this->http = $http ?: HttpFactory::getHttp();
-
-        error_log("[MigrationModel] Initialized http client: " . get_class($this->http));
     }
 
     public function getItem($pk = null)
@@ -113,7 +111,7 @@ class MigrationModel extends FormModel
 
     private function getSourceItems($sourceCms, $sourceType) {
         $sourceUrl = $sourceCms->url;
-        $sourceAuthentication = $sourceCms->authentication;
+        $sourceCredentials = $sourceCms->credentials;
 
         // Load source schema to get endpoint info
         $sourceSchemaFile = strtolower($sourceCms->name) . '-ccm.json';        
@@ -159,8 +157,8 @@ class MigrationModel extends FormModel
                 $sourceEndpoint     = $sourceUrl . '/' . $dependencyEndpoint;
 
                 $headers = ['Accept' => 'application/json'];
-                if ($sourceAuthentication) {
-                    $authHeaders = MigrationHelper::parseAuthentication($sourceAuthentication);
+                if ($sourceCredentials) {
+                    $authHeaders = MigrationHelper::parseAuthentication($sourceCredentials);
                     $headers     = array_merge($headers, $authHeaders);
                 }
 
@@ -189,8 +187,8 @@ class MigrationModel extends FormModel
             'Accept' => 'application/json',
         ];
 
-        if ($sourceAuthentication) {
-            $authHeaders = MigrationHelper::parseAuthentication($sourceAuthentication);
+        if ($sourceCredentials) {
+            $authHeaders = MigrationHelper::parseAuthentication($sourceCredentials);
             $headers = array_merge($headers, $authHeaders);
         }
 
@@ -480,10 +478,10 @@ class MigrationModel extends FormModel
     }
 
     private function migrateItemsToTargetCms($targetCms, $targetType, $ccmToTargetItems, $config = [], $sourceCms = null) {
-        $targetAuthentication = $targetCms->authentication;        
-        $endpoint             = $config['endpoint'] ?? $targetType;
-        $targetUrl            = $targetCms->url;
-        $targetEndpoint       = $targetUrl . '/' . $endpoint;
+        $targetCredentials = $targetCms->credentials;
+        $endpoint          = $config['endpoint'] ?? $targetType;
+        $targetUrl         = $targetCms->url;
+        $targetEndpoint    = $targetUrl . '/' . $endpoint;
 
         // Collect all unique custom fields from the items
         $allCustomFields = [];
@@ -520,8 +518,8 @@ class MigrationModel extends FormModel
                 'Content-Type' => 'application/json'
             ];
 
-            if ($targetAuthentication) {
-                $authHeaders = MigrationHelper::parseAuthentication($targetAuthentication);
+            if ($targetCredentials) {
+                $authHeaders = MigrationHelper::parseAuthentication($targetCredentials);
                 $headers = array_merge($headers, $authHeaders);
             }
 

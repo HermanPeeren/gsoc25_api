@@ -11,23 +11,25 @@ use Joomla\CMS\Http\HttpFactory;
 class MigrationHelper
 {
     /**
-     * Parse authentication data from database
-     * 
-     * @param string $authenticationJson JSON string containing authentication data
+     * Parse credentials for HTTP authentication headers.
+     *
+     * @param string $credentials Credentials string (token or username:password)
      * @return array Headers array for HTTP requests
      */
-    public static function parseAuthentication($authenticationJson)
+    public static function parseAuthentication($credentials)
     {
-        if (empty($authenticationJson)) {
+        if (empty($credentials)) {
             return [];
         }
 
-        $authData = json_decode($authenticationJson, true);
-        if (!$authData || !isset($authData['headers'])) {
-            return [];
+        $trimmed = trim($credentials, "\" \n\r\t");
+        // Check for username:password
+        if (strpos($trimmed, ':') !== false) {
+            $encoded = base64_encode($trimmed);
+            return ['Authorization' => 'Basic ' . $encoded];
         }
-
-        return $authData['headers'];
+        // Otherwise treat as Bearer token
+        return ['Authorization' => 'Bearer ' . $trimmed];
     }
 
     /**
@@ -286,8 +288,8 @@ class MigrationHelper
             'Content-Type' => 'application/json',
         ];
 
-        if ($targetCms->authentication) {
-            $authHeaders = self::parseAuthentication($targetCms->authentication);
+        if ($targetCms->credentials) {
+            $authHeaders = self::parseAuthentication($targetCms->credentials);
             $headers = array_merge($headers, $authHeaders);
         }
 
