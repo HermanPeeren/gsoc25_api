@@ -251,6 +251,18 @@ class MigrationModel extends FormModel
                 }
             }
 
+            if ($sourceType === 'users')
+            {
+                // only if schema didn’t already give us one
+                if (empty($ccmItem['email']))
+                {
+                    $base     = $ccmItem['username'] ?? $ccmItem['name'] ?? 'user';
+                    $domain   = 'nonexistent.com';
+                    $ccmItem['email'] = $base . '@' . $domain;
+                    error_log("[MigrationModel] Injected dummy email: " . $ccmItem['email']);
+                }
+            }
+
             // Keep special case for menu_id
             if (isset($item['menu_id'])) {
                 $ccmItem['menu_id'] = $item['menu_id'];
@@ -516,8 +528,8 @@ class MigrationModel extends FormModel
             }
         }
 
-        error_log("Collected Custom Fields: " . print_r($allCustomFields, true));
-        error_log("Custom Fields in migrateItemsToTargetCms: " . print_r($allCustomFields, true));
+        // error_log("Collected Custom Fields: " . print_r($allCustomFields, true));
+        // error_log("Custom Fields in migrateItemsToTargetCms: " . print_r($allCustomFields, true));
         if (!empty($allCustomFields)) {
             MigrationHelper::createCustomFields($targetUrl, $endpoint, $targetType, $allCustomFields, $targetCms);
         }
@@ -606,7 +618,7 @@ class MigrationModel extends FormModel
         if ($saveResult === false) {
             throw new \RuntimeException('✗ Failed to save migration map to file');
         }
-        // error_log('migration map: ' . print_r($this->migrationMap, true));
+        error_log('migration map: ' . print_r($this->migrationMap, true));
         return true;
     }
 }
