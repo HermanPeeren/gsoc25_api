@@ -226,12 +226,32 @@ class MigrationModel extends FormModel
         $ccmItems = [];
         foreach ($sourceItems as $item) {
             $ccmItem = [];
-            foreach ($sourceToCcm as $sourceKey => $ccmKey) {
-                if ($ccmKey && isset($item[$sourceKey])) {
-                    $ccmItem[$ccmKey] = $item[$sourceKey];
+
+            foreach ($sourceToCcm as $sourceKey => $ccmMap) {
+                if (is_array($ccmMap)) {
+                    // New style mapping with ccm + type + nested
+                    $ccmKey = $ccmMap['ccm'] ?? null;
+                    $nested = $ccmMap['nested'] ?? null;
+
+                    if ($ccmKey && isset($item[$sourceKey])) {
+                        $value = $item[$sourceKey];
+
+                        // Handle one level nested key
+                        if ($nested && is_array($value) && isset($value[$nested])) {
+                            $value = $value[$nested];
+                        }
+
+                        $ccmItem[$ccmKey] = $value;
+                    }
+                } else {
+                    // Old style mapping: "title": "title"
+                    if ($ccmMap && isset($item[$sourceKey])) {
+                        $ccmItem[$ccmMap] = $item[$sourceKey];
+                    }
                 }
             }
-            // Preserve injected dependency parameter (e.g., menu_id)
+
+            // Keep special case for menu_id
             if (isset($item['menu_id'])) {
                 $ccmItem['menu_id'] = $item['menu_id'];
             }
@@ -436,7 +456,7 @@ class MigrationModel extends FormModel
                                 break;
 
                             case 'url_replace':
-                                $value = MigrationHelper::buildLink($ccmItem, $ccmMap, $this->migrationMap);
+                                $value = MigrationHelper::replaceUrls($value, $this->migrationMap);
                                 break;
                             case 'id_map':
                                 if (!empty($value) && ($type === 'string' || $type === 'integer')) {
@@ -486,7 +506,7 @@ class MigrationModel extends FormModel
         // Collect all unique custom fields from the items
         $allCustomFields = [];
         foreach ($ccmToTargetItems as $item) {
-            error_log("Processing item: " . print_r($item, true));
+            // error_log("Processing item: " . print_r($item, true));
             if (!empty($item['custom_fields']) && is_array($item['custom_fields'])) {
                 foreach ($item['custom_fields'] as $fieldName => $fieldValue) {
                     if ($fieldName[0] !== '_' && !isset($allCustomFields[$fieldName])) {
@@ -586,6 +606,7 @@ class MigrationModel extends FormModel
         if ($saveResult === false) {
             throw new \RuntimeException('✗ Failed to save migration map to file');
         }
+        // error_log('migration map: ' . print_r($this->migrationMap, true));
         return true;
     }
 }

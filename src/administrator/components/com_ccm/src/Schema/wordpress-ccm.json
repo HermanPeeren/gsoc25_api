@@ -6,20 +6,32 @@
         "endpoint": "wp-json/wp/v2/posts"
       },
       "properties": {
-        "ID": "id",
+        "id": "id",
         "site_ID": null,
         "author": "author",
         "date": "created",
         "date_gmt": null,
         "modified": "modified",
         "modified_gmt": null,
-        "title": "title",
+        "title": {
+          "ccm": "title",
+          "type": "string",
+          "nested": "rendered"
+        },
         "link": "url",
         "permalink_template": null,
         "URL": "url",
         "short_URL": null,
-        "content": "context",
-        "excerpt": "summary",
+        "content": {
+          "ccm": "context",
+          "type": "string",
+          "nested": "rendered"
+        },
+        "excerpt": {
+          "ccm": "summary",
+          "type": "string",
+          "nested": "rendered"
+        },
         "slug": "alias",
         "generated_slug": "alias",
         "guid": null,
@@ -64,20 +76,32 @@
         "endpoint": "wp-json/wp/v2/pages"
       },
       "properties": {
-        "ID": "id",
+        "id": "id",
         "site_ID": null,
         "author": "author",
         "date": "created",
         "date_gmt": null,
         "modified": "modified",
         "modified_gmt": null,
-        "title": "title",
+        "title": {
+          "ccm": "title",
+          "type": "string",
+          "nested": "rendered"
+        },
         "link": "url",
         "permalink_template": null,
         "URL": "url",
         "short_URL": null,
-        "content": "context",
-        "excerpt": "summary",
+        "content": {
+          "ccm": "context",
+          "type": "string",
+          "nested": "rendered"
+        },
+        "excerpt": {
+          "ccm": "summary",
+          "type": "string",
+          "nested": "rendered"
+        },
         "slug": "alias",
         "generated_slug": "alias",
         "guid": null,
@@ -122,7 +146,7 @@
         "endpoint": "wp-json/wp/v2/categories"
       },
       "properties": {
-        "ID": "id",
+        "id": "id",
         "site_ID": null,
         "name": "title",
         "description": "description",
@@ -142,16 +166,28 @@
         "endpoint": "wp-json/wp/v2/media"
       },
       "properties": {
-        "ID": "id",
-        "title": "title",
+        "id": "id",
+        "title": {
+          "ccm": "title",
+          "type": "string",
+          "nested": "rendered"
+        },
         "alt": "alt",
-        "caption": "caption",
-        "description": "description",
+        "caption": {
+          "ccm": "caption",
+          "type": "string",
+          "nested": "rendered"
+        },
+        "description": {
+          "ccm": "description",
+          "type": "string",
+          "nested": "rendered"
+        },
         "file": "file",
         "media_type": "type",
         "mime_type": "mime_type",
         "extension": "extension",
-        "URL": "url",
+        "source_url": "url",
         "thumbnails": "thumbnails",
         "post_ID": "post_id",
         "date": "date",
@@ -160,7 +196,11 @@
         "modified_gmt": "modified_gmt",
         "author_ID": "author_id",
         "media_details": "media_details",
-        "guid": "guid",
+        "guid": {
+          "ccm": "guid",
+          "type": "string",
+          "nested": "rendered"
+        },
         "meta": "meta",
         "height": "height",
         "width": "width",
@@ -175,7 +215,7 @@
         "endpoint": "wp-json/wp/v2/tags"
       },
       "properties": {
-        "ID": "id",
+        "id": "id",
         "name": "title",
         "slug": "alias",
         "description": "description",
@@ -190,7 +230,7 @@
         "endpoint": "wp-json/wp/v2/menus"
       },
       "properties": {
-        "ID": "id",
+        "id": "id",
         "name": "title",
         "slug": "alias",
         "description": "description",
@@ -209,7 +249,7 @@
         }
       },
       "properties": {
-        "ID": "id",
+        "id": "id",
         "name": "title",
         "type_label": "type_label",
         "type": "type",
@@ -230,7 +270,7 @@
         "endpoint": "wp-json/wp/v2/users"
       },
       "properties": {
-        "ID": "id",
+        "id": "id",
         "login": "login",
         "email": "email",
         "name": "name",
