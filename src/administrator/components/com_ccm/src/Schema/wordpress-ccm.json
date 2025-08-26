@@ -276,7 +276,7 @@
         "name": "name",
         "first_name": "first_name",
         "last_name": "last_name",
-        "nice_name": "username",
+        "slug": "username",
         "URL": "url",
         "avatar_URL": "avatar_url",
         "profile_URL": "profile_url",
