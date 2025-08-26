@@ -473,10 +473,24 @@ class MigrationModel extends FormModel
                             case 'id_map':
                                 if (!empty($value) && ($type === 'string' || $type === 'integer')) {
                                     // Handle array with ID extraction (like author array, it is just one author)
-                                    if (is_array($value) && isset($value['ID'])) {
-                                        $value = $value['ID'];
+                                    if (is_array($value)) {
+                                        if (isset($value['ID'])) {
+                                            // categories = [
+                                            // 'ID'   => 42,
+                                            // 'name' => 'Uncategorized'
+                                            // ];
+                                            $value = $value['ID'];
+                                        } else {
+                                            // categories = [ 42, 43 ]
+                                            $firstId = reset($value);
+                                            $value   = $firstId;
+                                            error_log("[MigrationModel] Extracted first ID from array for '{$targetKey}': {$value}");
+                                        }
                                     } elseif (is_object($value) && isset($value->ID)) {
-                                        // Handle list of arrays (like categories)
+                                        // categories = (object) [
+                                        // 'ID'   => 42,
+                                        // 'name' => 'Uncategorized'
+                                        // ];
                                         $value = $value->ID;
                                     }
                                     $value = MigrationHelper::mapEntityId($value, $this->migrationMap, $entityType);

@@ -71,8 +71,7 @@
         "author": "author",
         "categories": {
           "ccm": "categories",
-          "type": "string",
-          "format": "array"
+          "type": "string"
         },
         "catid": {
           "ccm": "categories",
@@ -83,8 +82,7 @@
         },
         "tags": {
           "ccm": "tags",
-          "type": "string",
-          "format": "array"
+          "type": "string"
         }
       },
       "required": [
