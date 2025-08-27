@@ -82,7 +82,8 @@
         },
         "tags": {
           "ccm": "tags",
-          "type": "string"
+          "type": "string",
+          "format": "array"
         }
       },
       "required": [
