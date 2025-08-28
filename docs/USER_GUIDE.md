@@ -42,7 +42,7 @@ The component will automatically create the required database tables upon instal
 3. Update the CMS details:
    - **Name**: Descriptive name for the CMS
    - **URL**: Base URL of the source CMS
-   - **Credentials**: API keys or authentication details. Refer to [Auth Guidance](AUTHENTICATION_GUIDE.md) for developer details.
+   - **Credentials**: API keys or authentication details. Follow the next steps to get the credentials. Refer to [Auth Guidance](AUTHENTICATION_GUIDE.md) for developer details.
 
 ### 2. Obtaining CMS Credentials & Adding them in Joomla CMS
 
@@ -58,10 +58,8 @@ Before you can migrate content, you need to obtain the proper API credentials fo
    - Copy the generated password
    - In CMS Management, choose "WordPress"
    ![CMSs Page image](images/cmss.png)
-   - We need a base64 generator (e.g., [Base64 Encode](https://www.debugbear.com/basic-auth-header-generator))
-   put your WordPress username and password, then take the generated authentication (e.g. Authorization: Basic UmVlbTpQYXNzd29yZA==) 
-   ![WordPress CMS Auth image](images/wordpress%20auth.png)
-   - Add them in the WordPress auth
+   - We need the username and the password.
+   - Add them in the WordPress credentials like the following:
    ![WordPress CMS Page image](images/wordpress%20cms.png)
 
 #### For Joomla
@@ -73,7 +71,7 @@ Before you can migrate content, you need to obtain the proper API credentials fo
    - Click **Save**
    - Copy the generated token
    - In CMS Management, choose "Joomla"
-   - Add the generated token with 'Bearer' before it.
+   - Add the generated token.
    ![Joomla CMS Page image](images/joomla%20cms.png)
 
 > **Security Note**: Always use dedicated API credentials with minimal required permissions. Never use your main administrator password for API access.
