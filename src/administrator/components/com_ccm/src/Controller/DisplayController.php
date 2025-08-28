@@ -1,4 +1,12 @@
 <?php
+/**
+ * @package     Joomla.Administrator
+ * @subpackage  CCM
+ *
+ * @copyright   (C) 2009 Open Source Matters, Inc. <https://www.joomla.org>
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ */
+
 // first file the Joomla! MVC checks after the component bootup
 namespace Reem\Component\CCM\Administrator\Controller;
 use Joomla\CMS\MVC\Controller\BaseController;
