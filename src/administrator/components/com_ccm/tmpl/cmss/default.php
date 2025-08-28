@@ -14,6 +14,9 @@ use Joomla\CMS\HTML\HTMLHelper; // use web asset manager. look at content in joo
 
 defined('_JEXEC') or die;
 
+$listDirn  = $this->escape($this->state->get('list.direction'));
+$listOrder = $this->escape($this->state->get('list.ordering'));
+
 HTMLHelper::_('behavior.multiselect');
 HTMLHelper::_('formbehavior.chosen', '#filter_search', null, array('placeholder_text_single' => Text::_('JOPTION_SELECT_PUBLISHED')));
 ?>
@@ -39,10 +42,10 @@ HTMLHelper::_('formbehavior.chosen', '#filter_search', null, array('placeholder_
                         <?php echo HTMLHelper::_('grid.checkall'); ?>
                     </th>
                     <th class="nowrap">
-                        <?php echo HTMLHelper::_('searchtools.sort', 'COM_CCM_CMS_NAME', 'a.name', $this->listDirn, $this->listOrder); ?>
+                        <?php echo HTMLHelper::_('searchtools.sort', 'COM_CCM_CMS_NAME', 'a.name', $listDirn, $listOrder); ?>
                     </th>
                     <th width="10%" class="nowrap center">
-                        <?php echo HTMLHelper::_('searchtools.sort', 'JGRID_HEADING_ID', 'a.id', $this->listDirn, $this->listOrder); ?>
+                        <?php echo HTMLHelper::_('searchtools.sort', 'JGRID_HEADING_ID', 'a.id', $listDirn, $listOrder); ?>
                     </th>
                 </tr>
             </thead>
