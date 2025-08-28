@@ -33,9 +33,10 @@ class HtmlView extends BaseHtmlView
 
         $this->addToolbar();
 
+        // TODO
         // after each step say echo "Mapping is done" --> then echo "Migration is done"
-        //this can be added in js in frontend in mdeia folder
-        //from webassets 
+        // this can be added in js in frontend in mdeia folder
+        // from webassets 
         parent::display($tpl);
     }
 

@@ -11,8 +11,11 @@ defined('_JEXEC') or die;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
-HTMLHelper::_('behavior.formvalidator');
-HTMLHelper::_('behavior.keepalive');
+
+/** @var Joomla\CMS\WebAsset\WebAssetManager $wa */
+$wa = $this->getDocument()->getWebAssetManager();
+$wa->useScript('keepalive')
+   ->useScript('form.validate');
 ?>
 <form action="<?php echo Route::_('index.php?option=com_ccm&task=migration.apply'); ?>" method="post" id="migration-form" name="adminForm" class="form-validate">
     

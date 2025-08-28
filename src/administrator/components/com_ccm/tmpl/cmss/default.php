@@ -10,15 +10,18 @@
 use Joomla\CMS\Layout\LayoutHelper;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\Language\Text;
-use Joomla\CMS\HTML\HTMLHelper; // use web asset manager. look at content in joomla cms
+use Joomla\CMS\HTML\HTMLHelper;
 
 defined('_JEXEC') or die;
 
 $listDirn  = $this->escape($this->state->get('list.direction'));
 $listOrder = $this->escape($this->state->get('list.ordering'));
 
-HTMLHelper::_('behavior.multiselect');
-HTMLHelper::_('formbehavior.chosen', '#filter_search', null, array('placeholder_text_single' => Text::_('JOPTION_SELECT_PUBLISHED')));
+/** @var \Joomla\CMS\WebAsset\WebAssetManager $wa */
+$wa = $this->getDocument()->getWebAssetManager();
+$wa->useScript('table.columns')
+    ->useScript('multiselect');
+
 ?>
 
 <form action="<?php echo Route::_('index.php?option=com_ccm&view=cmss'); ?>" method="post" name="adminForm" id="adminForm">
