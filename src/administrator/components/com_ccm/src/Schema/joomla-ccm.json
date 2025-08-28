@@ -52,7 +52,11 @@
         "publish_up": null,
         "publish_down": null,
         "image": "image",
-        "images": "images",
+        "images": {
+          "ccm": "featured_image",
+          "format": "image",
+          "field": "image_intro"
+        },
         "version": null,
         "metakey": null,
         "metadesc": null,

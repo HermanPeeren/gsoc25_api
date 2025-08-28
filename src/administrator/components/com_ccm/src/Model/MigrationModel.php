@@ -416,6 +416,11 @@ class MigrationModel extends FormModel
 
                     if (!empty($value) && $format) {
                         switch ($format) {
+                            case 'image':
+                                $oldId   = $ccmItem[$ccmMap['ccm']] ?? null;
+                                $fileMap = $this->migrationMap["media"]['files'][$oldId] ?? [];
+                                $value   = [ $ccmMap['field'] => ($fileMap['newUrl'] ?? null) ];
+                                break;
                             case 'link_builder':
                                 // If this is a custom link menu-item, use the original URL instead of the template
                                 if (isset($ccmItem['type']) && $ccmItem['type'] === 'custom') {
@@ -631,6 +636,15 @@ class MigrationModel extends FormModel
                     
                     $newUrl = $newThumbPath ?: $newPath;
                     $this->migrationMap[$targetType]['urls'][$oldUrl] = $newUrl;
+
+                    // for intro/featured image
+                    if (!isset($this->migrationMap[$targetType]['files'])) {
+                        $this->migrationMap[$targetType]['files'] = [];
+                    }
+                    $this->migrationMap[$targetType]['files'][$oldId] = [
+                        'oldUrl' => $oldUrl,
+                        'newUrl' => $newUrl
+                    ];
                 }
             } else {
                 throw new \RuntimeException('Error migrating item #' . ($idx + 1) . ' - HTTP ' . $response->code . ': ' . $response->body);
