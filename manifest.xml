@@ -2,10 +2,10 @@
 <extension type="package" method="upgrade">
     <name>CCM Package</name>
     <packagename>ccm</packagename>
-    <version>__DEPLOY_VERSION__</version>
-    <url>https://github.com/username/gsoc25_api</url>
+    <version>0.10.0-alpha</version>
+    <url>https://github.com/joomla-projects/gsoc25_api</url>
     <packager>Joomla!</packager>
-    <packagerurl>https://github.com/username/gsoc25_api</packagerurl>
+    <packagerurl>https://github.com/joomla-projects/gsoc25_api</packagerurl>
     <description><![CDATA[
         <h2>Content Creation Management (CCM) Component for Joomla</h2>
         <p>This package contains the CCM component for Joomla 4.4+</p>
@@ -20,6 +20,6 @@
     <scriptfile>script.php</scriptfile>
 
     <updateservers>
-        <server type="extension" priority="1" name="CCM Update">https://github.com/username/gsoc25_api/releases/latest/download/update.xml</server>
+        <server type="extension" priority="1" name="CCM Update">https://github.com/joomla-projects/gsoc25_api/update.xml</server>
     </updateservers>
 </extension>
