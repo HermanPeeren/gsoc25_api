@@ -7,7 +7,7 @@
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
-use Reem\Component\CCM\Administrator\Extension\CCMComponent;
+use Joomla\Component\CCM\Administrator\Extension\CCMComponent;
 
 defined('_JEXEC') or die;
 
@@ -25,8 +25,8 @@ return new class implements ServiceProviderInterface
 {
     public function register(Container $container)
     {
-        $container->registerServiceProvider(new ComponentDispatcherFactory('\\Reem\\Component\\CCM'));
-        $container->registerServiceProvider(new MVCFactory('\\Reem\\Component\\CCM'));
+        $container->registerServiceProvider(new ComponentDispatcherFactory('\\Joomla\\Component\\CCM'));
+        $container->registerServiceProvider(new MVCFactory('\\Joomla\\Component\\CCM'));
 
         $container->set(
             ComponentInterface::class,

@@ -8,9 +8,9 @@
  */
 
 defined('_JEXEC') or die;
-use Joomla\CMS\Router\Route;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
+use Joomla\CMS\Router\Route;
 
 /** @var Joomla\CMS\WebAsset\WebAssetManager $wa */
 $wa = $this->getDocument()->getWebAssetManager();
@@ -27,14 +27,14 @@ $wa->useScript('keepalive')
             <div class="row">
                 <div class="col-md-6">
                     <fieldset class="options-form">
-                        <legend><?php echo Text::_('MIGRATION_SOURCE_CMS'); ?></legend>
+                        <legend><?php echo Text::_('COM_CCM_MIGRATION_SOURCE_CMS'); ?></legend>
                         <?php echo $this->form->renderField('source_cms'); ?>
                         <?php echo $this->form->renderField('source_cms_object_type'); ?>
                     </fieldset>
                 </div>
                 <div class="col-md-6">
                     <fieldset class="options-form">
-                        <legend><?php echo Text::_('MIGRATION_TARGET_CMS'); ?></legend>
+                        <legend><?php echo Text::_('COM_CCM_MIGRATION_TARGET_CMS'); ?></legend>
                         <?php echo $this->form->renderField('target_cms'); ?>
                         <?php echo $this->form->renderField('target_cms_object_type'); ?>
                     </fieldset>
@@ -45,7 +45,7 @@ $wa->useScript('keepalive')
                 <div class="col-md-12">
                     <button type="submit" class="btn btn-primary btn-lg">
                         <span class="icon-upload" aria-hidden="true"></span>
-                        <?php echo Text::_('APPLY_MIGRATION_BTN'); ?>
+                        <?php echo Text::_('COM_CCM_APPLY_MIGRATION_BTN'); ?>
                     </button>
                 </div>
             </div>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<form addfieldprefix="Reem\Component\CCM\Administrator\Fields">
+<form addfieldprefix="Joomla\Component\CCM\Administrator\Fields">
     <field
         name="name"
         type="text"

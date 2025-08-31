@@ -7,14 +7,14 @@
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
-namespace Reem\Component\CCM\Administrator\View\Migration;
+namespace Joomla\Component\CCM\Administrator\View\Migration;
 
 defined('_JEXEC') or die;
 
+use Joomla\CMS\Language\Text;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
 use Joomla\CMS\Toolbar\ToolbarHelper;
-use Joomla\CMS\Language\Text;
-use Reem\Component\CCM\Administrator\Migration\Migration;
+use Joomla\Component\CCM\Administrator\Migration\Migration;
 
 class HtmlView extends BaseHtmlView
 {

@@ -7,7 +7,7 @@
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
-namespace Reem\Component\CCM\Administrator\Service;
+namespace Joomla\Component\CCM\Administrator\Service;
 
 defined('_JEXEC') or die;
 

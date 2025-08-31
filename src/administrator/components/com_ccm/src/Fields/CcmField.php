@@ -7,9 +7,9 @@
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
-namespace Reem\Component\CCM\Administrator\Fields;
-use Joomla\CMS\Form\Field\ListField;
+namespace Joomla\Component\CCM\Administrator\Fields;
 use Joomla\CMS\Factory;
+use Joomla\CMS\Form\Field\ListField;
 
 // content in wordpress & text in joomla 
 // what if data is null (e.g. image), then I can't get its type 

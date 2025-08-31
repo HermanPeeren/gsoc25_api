@@ -7,7 +7,7 @@
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
-namespace Reem\Component\CCM\Administrator\Helper;
+namespace Joomla\Component\CCM\Administrator\Helper;
 
 use Joomla\CMS\Http\HttpFactory;
 

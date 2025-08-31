@@ -1,12 +1,12 @@
 <?php
 
-namespace Reem\Tests\Unit\Component\CCM\Administrator\Model;
+namespace Joomla\Tests\Unit\Component\CCM\Administrator\Model;
 
 use Joomla\Tests\Unit\UnitTestCase;
 use Joomla\CMS\Http\Http;
 
-use Reem\Component\CCM\Administrator\Model\MigrationModel;
-use Reem\Component\CCM\Administrator\Helper\MigrationHelper;
+use Joomla\Component\CCM\Administrator\Model\MigrationModel;
+use Joomla\Component\CCM\Administrator\Helper\MigrationHelper;
 
 class MigrationModelTest extends UnitTestCase
 {

@@ -7,7 +7,7 @@
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
-namespace Reem\Component\CCM\Administrator\Controller;
+namespace Joomla\Component\CCM\Administrator\Controller;
 use Joomla\CMS\MVC\Controller\FormController;
 class CmsController extends FormController
 {
@@ -19,7 +19,7 @@ class CmsController extends FormController
     public function migrate()
     {
         error_log('CmsController::migrate called');
-        $migration = new \Reem\Component\CCM\Administrator\Migration\Migration();
+        $migration = new \Joomla\Component\CCM\Administrator\Migration\Migration();
         $migration->migrate();
 
         // Optionally redirect or set a message

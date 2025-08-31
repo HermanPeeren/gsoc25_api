@@ -1,8 +1,8 @@
 <?php
-namespace Reem\Tests\Unit\Component\CCM\Administrator\Model;
+namespace Joomla\Tests\Unit\Component\CCM\Administrator\Model;
 
 use Joomla\Tests\Unit\UnitTestCase;
-use Reem\Component\CCM\Administrator\Model\CmssModel;
+use Joomla\Component\CCM\Administrator\Model\CmssModel;
 use Joomla\CMS\Table\Table;
 use Joomla\Database\DatabaseDriver;
 use Joomla\Database\QueryInterface;

@@ -1,10 +1,10 @@
 <?php
-namespace Reem\Tests\Unit\Component\CCM\Administrator\Model;
+namespace Joomla\Tests\Unit\Component\CCM\Administrator\Model;
 
 use Joomla\Tests\Unit\UnitTestCase;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Form\Form;
-use Reem\Component\CCM\Administrator\Model\CmsModel;
+use Joomla\Component\CCM\Administrator\Model\CmsModel;
 
 class CmsModelTest extends UnitTestCase
 {

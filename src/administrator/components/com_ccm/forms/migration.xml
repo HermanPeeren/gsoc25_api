@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<form addfieldprefix="Reem\Component\CCM\Administrator\Fields">
+<form addfieldprefix="Joomla\Component\CCM\Administrator\Fields">
     <!-- Simplified form - automatically migrates all compatible content types -->
     <field
         name="source_cms"
         type="cms"
-        label="MIGRATION_SOURCE_CMS"
+        label="COM_CCM_MIGRATION_SOURCE_CMS"
         required="true"
         default=""
     />
     <field
         name="target_cms"
         type="cms"
-        label="MIGRATION_TARGET_CMS"
+        label="COM_CCM_MIGRATION_TARGET_CMS"
         required="true"
         default=""
     />

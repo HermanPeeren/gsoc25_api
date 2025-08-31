@@ -1,5 +1,5 @@
 {
-    "name": "reem/joomla-ccm-component",
+    "name": "joomla/ccm-component",
     "description": "Content Creation Management Component for Joomla",
     "type": "project",
     "license": "GPL-2.0-or-later",
@@ -12,8 +12,8 @@
     },
     "autoload": {
         "psr-4": {
-            "Reem\\Component\\CCM\\": "src/administrator/components/com_ccm/src/",
-            "Reem\\Tests\\": "tests/"
+            "Joomla\\Component\\CCM\\": "src/administrator/components/com_ccm/src/",
+            "Joomla\\Tests\\": "tests/"
         }
     },
     "config": {

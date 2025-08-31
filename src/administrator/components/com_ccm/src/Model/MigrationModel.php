@@ -7,15 +7,15 @@
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
-namespace Reem\Component\CCM\Administrator\Model;
+namespace Joomla\Component\CCM\Administrator\Model;
 
-use Joomla\CMS\MVC\Model\FormModel;
-use Joomla\CMS\Http\HttpFactory;
-use \Joomla\CMS\Http\Http;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Filter\OutputFilter;
+use Joomla\CMS\Http\Http;
+use Joomla\CMS\Http\HttpFactory;
+use Joomla\CMS\MVC\Model\FormModel;
 use Joomla\CMS\User\UserHelper;
-use Reem\Component\CCM\Administrator\Helper\MigrationHelper;
+use Joomla\Component\CCM\Administrator\Helper\MigrationHelper;
 
 /**
  * Class Migration

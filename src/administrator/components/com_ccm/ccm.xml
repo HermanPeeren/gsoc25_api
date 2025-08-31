@@ -7,7 +7,7 @@
     <license>GNU General Public License version 2 or later; see LICENSE.txt</license>
     <version>1.0.1</version>
     <description>COM_CCM_DESCRIPTION</description>
-    <namespace path="src">Reem\Component\CCM</namespace>
+    <namespace path="src">Joomla\Component\CCM</namespace>
     <install>
         <sql>
             <file driver="mysql" charset="utf8">sql/install.mysql.utf8.sql</file>
@@ -50,6 +50,6 @@
         </submenu>
     </administration>
 
-    <extensionclass>Reem\Component\CCM\Administrator\Extension\CCMComponent</extensionclass>
+    <extensionclass>Joomla\Component\CCM\Administrator\Extension\CCMComponent</extensionclass>
 
 </extension>

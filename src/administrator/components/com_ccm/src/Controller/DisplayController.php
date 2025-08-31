@@ -8,7 +8,7 @@
  */
 
 // first file the Joomla! MVC checks after the component bootup
-namespace Reem\Component\CCM\Administrator\Controller;
+namespace Joomla\Component\CCM\Administrator\Controller;
 use Joomla\CMS\MVC\Controller\BaseController;
 
 class DisplayController extends BaseController

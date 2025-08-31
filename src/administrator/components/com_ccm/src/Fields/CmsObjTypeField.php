@@ -7,7 +7,7 @@
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
-namespace Reem\Component\CCM\Administrator\Fields;
+namespace Joomla\Component\CCM\Administrator\Fields;
 use Joomla\CMS\Form\Field\ListField;
 
 // prefixed the name of our field with our company name. 
