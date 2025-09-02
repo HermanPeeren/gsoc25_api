@@ -3,7 +3,7 @@
     {
       "type": "articles",
       "config": {
-        "endpoint": "content/articles"
+        "endpoint": "api/index.php/v1/content/articles"
       },
       "properties": {
         "id": "id",
@@ -99,7 +99,7 @@
     {
       "type": "categories",
       "config": {
-        "endpoint": "content/categories"
+        "endpoint": "api/index.php/v1/content/categories"
       },
       "properties": {
         "id": "id",
@@ -146,7 +146,7 @@
     {
       "type": "media",
       "config": {
-        "endpoint": "media/files",
+        "endpoint": "api/index.php/v1/media/files",
         "content_type": "application/json"
       },
       "properties": {
@@ -215,7 +215,7 @@
     {
       "type": "tags",
       "config": {
-        "endpoint": "tags"
+        "endpoint": "api/index.php/v1/tags"
       },
       "properties": {
         "id": "id",
@@ -246,7 +246,7 @@
     {
       "type": "menus",
       "config": {
-        "endpoint": "menus/site"
+        "endpoint": "api/index.php/v1/menus/site"
       },
       "properties": {
         "id": "id",
@@ -262,7 +262,7 @@
     {
       "type": "menu_items",
       "config": {
-        "endpoint": "menus/site/items"
+        "endpoint": "api/index.php/v1/menus/site/items"
       },
       "properties": {
         "id": "id",
@@ -348,7 +348,7 @@
     {
       "type": "users",
       "config": {
-        "endpoint": "users"
+        "endpoint": "api/index.php/v1/users"
       },
       "properties": {
         "id": "id",

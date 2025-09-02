@@ -41,7 +41,6 @@
         <languages>
             <language tag="en-GB">language/en-GB/com_ccm.sys.ini</language>
 			<language tag="en-GB">language/en-GB/com_ccm.ini</language>
-			<language tag="en-GB">language/en-GB/com_ccm.sys.ini</language>
 		</languages>
         <menu link="option=com_ccm&amp;view=cmss" img="class:default">COM_CCM_MENU_BACKEND</menu>
         <submenu>
@@ -51,5 +50,7 @@
     </administration>
 
     <extensionclass>Joomla\Component\CCM\Administrator\Extension\CCMComponent</extensionclass>
-
+    <updateservers>
+        <server type="extension" priority="1" name="CCM Update">https://github.com/joomla-projects/gsoc25_api/blob/main/update.xml</server>
+    </updateservers>
 </extension>
