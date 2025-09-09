@@ -408,7 +408,7 @@ class MigrationModel extends FormModel
                                         $value = $mapping[1];
                                     }
                                 } else {
-                                    throw new Exception("No menutype mapping found for menu_id $oldMenuId");
+                                    throw new \RuntimeException("No menutype mapping found for menu_id $oldMenuId");
                                 }
                                 break;
                         }
