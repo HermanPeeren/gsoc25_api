@@ -49,7 +49,6 @@
         </submenu>
     </administration>
 
-    <extensionclass>Joomla\Component\CCM\Administrator\Extension\CCMComponent</extensionclass>
     <updateservers>
         <server type="extension" priority="1" name="CCM Update">https://github.com/joomla-projects/gsoc25_api/blob/main/update.xml</server>
     </updateservers>
