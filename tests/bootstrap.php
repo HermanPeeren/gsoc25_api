@@ -248,6 +248,7 @@ $componentFiles = [
     'Model/CmsModel.php',
     'Model/MigrationModel.php', 
     'Model/CmssModel.php',
+    'Helper/MigrationHelper.php',
 ];
 
 foreach ($componentFiles as $file) {
