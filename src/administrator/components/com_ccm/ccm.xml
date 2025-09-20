@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension type="component" method="upgrade">
-    <name>COM_CCM</name>
+    <name>com_ccm</name>
     <creationDate>2025-05-14</creationDate>
     <author>Joomla! Project</author>
     <authorEmail>joomla@example.com</authorEmail>
     <license>GNU General Public License version 2 or later; see LICENSE.txt</license>
-    <version>1.0.1</version>
+    <version>0.10.0</version>
     <description>COM_CCM_DESCRIPTION</description>
     <namespace path="src">Joomla\Component\CCM</namespace>
     <install>
@@ -42,7 +42,7 @@
             <language tag="en-GB">language/en-GB/com_ccm.sys.ini</language>
 			<language tag="en-GB">language/en-GB/com_ccm.ini</language>
 		</languages>
-        <menu link="option=com_ccm&amp;view=cmss" img="class:default">COM_CCM_MENU_BACKEND</menu>
+        <menu link="option=com_ccm" img="class:default">COM_CCM_MENU_BACKEND</menu>
         <submenu>
             <menu link="option=com_ccm&amp;view=cmss" img="class:default">COM_CCM_SUBMENU_CMS</menu>
             <menu link="option=com_ccm&amp;view=migration" img="class:default">COM_CCM_SUBMENU_MIGRATION</menu>

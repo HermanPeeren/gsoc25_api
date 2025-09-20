@@ -16,7 +16,7 @@ namespace Joomla\Component\CCM\Administrator\Fields;
 use Joomla\CMS\Form\Field\ListField;
 
 class CmsField extends ListField { // this should be named CmsNameField
-    // define a custom form field
+
     // the name of the type for our new field
     protected $type = 'cms';
 

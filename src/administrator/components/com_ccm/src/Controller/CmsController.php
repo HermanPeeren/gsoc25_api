@@ -14,6 +14,8 @@ namespace Joomla\Component\CCM\Administrator\Controller;
 // phpcs:enable PSR1.Files.SideEffects
 
 use Joomla\CMS\MVC\Controller\FormController;
+use Joomla\Component\CCM\Administrator\Model\CmsModel;
+
 class CmsController extends FormController
 {
     protected function getRedirectToListAppend()
@@ -38,6 +40,8 @@ class CmsController extends FormController
      * @param   string  $urlVar   The name of the URL variable if different from the primary key.
      *
      * @return  void
+     *
+     * @since 1.0.0
      */
     public function save($key = null, $urlVar = null)
     {

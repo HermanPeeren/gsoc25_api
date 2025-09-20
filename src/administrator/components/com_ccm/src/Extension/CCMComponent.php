@@ -29,7 +29,7 @@ class CCMComponent extends MVCComponent implements BootableExtensionInterface
      *
      * @return  array
      *
-     * @since   __DEV__
+     * @since 1.0.0
      */
     public function getContexts(): array
     {

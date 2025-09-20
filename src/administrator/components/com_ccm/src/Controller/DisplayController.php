@@ -22,7 +22,7 @@ class DisplayController extends BaseController
      * The default view.
      *
      * @var    string
-     * @since  __DEV__
+     * @since 1.0.0
      */
     protected $default_view = 'Cmss';
 
@@ -34,7 +34,7 @@ class DisplayController extends BaseController
      *
      * @return  static  This object to support chaining.
      *
-     * @since   __DEV__
+     * @since 1.0.0
      */
     public function display($cachable = false, $urlparams = [])
     {

@@ -18,7 +18,7 @@ use Joomla\CMS\Router\Route as JRoute;
 /**
  * CmssController class.
  *
- * @since  __DEV__
+ * @since 1.0.0
  */
 class CmssController extends ListController
 {
