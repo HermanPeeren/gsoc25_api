@@ -26,7 +26,10 @@ class MigrationHelper
      * Parse credentials for HTTP authentication headers.
      *
      * @param string $credentials Credentials string (token or username:password)
+     *
      * @return array Headers array for HTTP requests
+     *
+     * @since 1.0.0
      */
     public static function parseAuthentication($credentials)
     {

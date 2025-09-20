@@ -20,7 +20,7 @@ use Joomla\CMS\Form\Field\ListField;
 // what if data is null (e.g. image), then I can't get its type 
 
 class CcmField extends ListField {
-    // define a custom form field
+
     // the name of the type for our new field
     protected $type = 'ccm';
 
