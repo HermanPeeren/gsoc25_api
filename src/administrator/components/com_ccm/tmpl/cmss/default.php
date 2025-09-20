@@ -38,15 +38,20 @@ $wa->useScript('table.columns')
         </div>
     <?php else : ?>
         <table class="table table-striped" id="cmsList">
+            <caption class="visually-hidden">
+                <?php echo Text::_('COM_CCM_CMSS_TABLE_CAPTION'); ?>,
+                <span id="orderedBy"><?php echo Text::_('JGLOBAL_SORTED_BY'); ?> </span>,
+                <span id="filteredBy"><?php echo Text::_('JGLOBAL_FILTERED_BY'); ?></span>
+            </caption>
             <thead>
                 <tr>
-                    <th width="1%" class="nowrap center">
+                    <td class="w-1 text-center">
                         <?php echo HTMLHelper::_('grid.checkall'); ?>
-                    </th>
-                    <th class="nowrap">
+                    </td>
+                    <th  scope="col" class="w-50">
                         <?php echo HTMLHelper::_('searchtools.sort', 'COM_CCM_CMS_NAME', 'a.name', $listDirn, $listOrder); ?>
                     </th>
-                    <th width="10%" class="nowrap center">
+                    <th  scope="col" class="w-5 text-center">
                         <?php echo HTMLHelper::_('searchtools.sort', 'JGRID_HEADING_ID', 'a.id', $listDirn, $listOrder); ?>
                     </th>
                 </tr>
@@ -57,11 +62,11 @@ $wa->useScript('table.columns')
                         <td class="center">
                             <?php echo HTMLHelper::_('grid.id', $i, $item->id); ?>
                         </td>
-                        <td class="nowrap has-context">
+                        <th scope="row" class="has-context">
                             <a href="<?php echo Route::_('index.php?option=com_ccm&task=cms.edit&id=' . (int) $item->id); ?>">
                                 <?php echo $this->escape($item->name); ?>
                             </a>
-                        </td>
+                        </th>
                         <td class="center">
                             <?php echo (int) $item->id; ?>
                         </td>
