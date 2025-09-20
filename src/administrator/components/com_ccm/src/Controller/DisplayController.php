@@ -7,8 +7,13 @@
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
-// first file the Joomla! MVC checks after the component bootup
+
 namespace Joomla\Component\CCM\Administrator\Controller;
+
+// phpcs:disable PSR1.Files.SideEffects
+\defined('_JEXEC') or die;
+// phpcs:enable PSR1.Files.SideEffects
+
 use Joomla\CMS\MVC\Controller\BaseController;
 
 class DisplayController extends BaseController

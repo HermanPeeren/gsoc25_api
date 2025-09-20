@@ -7,12 +7,12 @@
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
+defined('_JEXEC') or die;
+
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Layout\LayoutHelper;
 use Joomla\CMS\Router\Route;
-
-defined('_JEXEC') or die;
 
 $listDirn  = $this->escape($this->state->get('list.direction'));
 $listOrder = $this->escape($this->state->get('list.ordering'));
@@ -21,7 +21,6 @@ $listOrder = $this->escape($this->state->get('list.ordering'));
 $wa = $this->getDocument()->getWebAssetManager();
 $wa->useScript('table.columns')
     ->useScript('multiselect');
-
 ?>
 
 <form action="<?php echo Route::_('index.php?option=com_ccm&view=cmss'); ?>" method="post" name="adminForm" id="adminForm">

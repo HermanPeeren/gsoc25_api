@@ -8,10 +8,13 @@
  */
 
 namespace Joomla\Component\CCM\Administrator\Fields;
+
+// phpcs:disable PSR1.Files.SideEffects
+\defined('_JEXEC') or die;
+// phpcs:enable PSR1.Files.SideEffects
+
 use Joomla\CMS\Form\Field\ListField;
 
-// prefixed the name of our field with our company name. 
-// This helps prevent clashes with other field types defined by other developers.
 class CmsField extends ListField { // this should be named CmsNameField
     // define a custom form field
     // the name of the type for our new field

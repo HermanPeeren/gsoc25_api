@@ -13,7 +13,9 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\Http\HttpFactory;
 use Joomla\CMS\MVC\Model\AdminModel;
 
+// phpcs:disable PSR1.Files.SideEffects
 \defined('_JEXEC') or die;
+// phpcs:enable PSR1.Files.SideEffects
 
 //cms type = wordpress, joomla, drupal, etc.
 //their APIs
