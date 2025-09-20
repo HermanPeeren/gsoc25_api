@@ -1,12 +1,12 @@
 <?php
 namespace Joomla\Tests\Unit\Component\CCM\Administrator\Model;
 
-use Joomla\Tests\Unit\UnitTestCase;
-use Joomla\Component\CCM\Administrator\Model\CmssModel;
 use Joomla\CMS\Table\Table;
+use Joomla\Component\CCM\Administrator\Model\CmssModel;
 use Joomla\Database\DatabaseDriver;
 use Joomla\Database\QueryInterface;
 use Joomla\Registry\Registry;
+use Joomla\Tests\Unit\UnitTestCase;
 
 class CmssModelTest extends UnitTestCase
 {
