@@ -9,7 +9,9 @@
 
 namespace Joomla\Component\CCM\Administrator\View\Migration;
 
-defined('_JEXEC') or die;
+// phpcs:disable PSR1.Files.SideEffects
+\defined('_JEXEC') or die;
+// phpcs:enable PSR1.Files.SideEffects
 
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
@@ -35,7 +37,7 @@ class HtmlView extends BaseHtmlView
 
         // TODO
         // after each step say echo "Mapping is done" --> then echo "Migration is done"
-        // this can be added in js in frontend in mdeia folder
+        // this can be added in js in frontend in media folder
         // from webassets 
         parent::display($tpl);
     }

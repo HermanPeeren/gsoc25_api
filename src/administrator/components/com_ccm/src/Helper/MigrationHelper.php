@@ -9,6 +9,10 @@
 
 namespace Joomla\Component\CCM\Administrator\Helper;
 
+// phpcs:disable PSR1.Files.SideEffects
+\defined('_JEXEC') or die;
+// phpcs:enable PSR1.Files.SideEffects
+
 use Joomla\CMS\Http\HttpFactory;
 
 /**

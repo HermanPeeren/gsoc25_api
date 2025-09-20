@@ -8,14 +8,17 @@
  */
 
 namespace Joomla\Component\CCM\Administrator\Fields;
+
+// phpcs:disable PSR1.Files.SideEffects
+\defined('_JEXEC') or die;
+// phpcs:enable PSR1.Files.SideEffects
+
 use Joomla\CMS\Factory;
 use Joomla\CMS\Form\Field\ListField;
 
-// content in wordpress & text in joomla 
+// content in WordPress & text in Joomla
 // what if data is null (e.g. image), then I can't get its type 
 
-// prefixed the name of our field with our company name. 
-// This helps prevent clashes with other field types defined by other developers.
 class CcmField extends ListField {
     // define a custom form field
     // the name of the type for our new field

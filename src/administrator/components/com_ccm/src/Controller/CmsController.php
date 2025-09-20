@@ -8,6 +8,11 @@
  */
 
 namespace Joomla\Component\CCM\Administrator\Controller;
+
+// phpcs:disable PSR1.Files.SideEffects
+\defined('_JEXEC') or die;
+// phpcs:enable PSR1.Files.SideEffects
+
 use Joomla\CMS\MVC\Controller\FormController;
 class CmsController extends FormController
 {
