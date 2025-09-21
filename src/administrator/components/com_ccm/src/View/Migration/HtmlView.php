@@ -16,7 +16,7 @@ namespace Joomla\Component\CCM\Administrator\View\Migration;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
 use Joomla\CMS\Toolbar\ToolbarHelper;
-use Joomla\Component\CCM\Administrator\Migration\Migration;
+use Joomla\Component\CCM\Administrator\Model\MigrationModel;
 
 class HtmlView extends BaseHtmlView
 {
@@ -26,7 +26,7 @@ class HtmlView extends BaseHtmlView
 
     public function display($tpl = null): void
     {
-        /** @var Migration $model */
+        /** @var MigrationModel $model */
         $model = $this->getModel();
         
         $this->item  = $model->getItem();

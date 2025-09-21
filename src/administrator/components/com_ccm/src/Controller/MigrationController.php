@@ -18,6 +18,13 @@ use Joomla\CMS\MVC\Controller\BaseController;
 
 class MigrationController extends BaseController
 {
+    /**
+     * Apply migration from source CMS to target CMS.
+     *
+     * @return void
+     *
+     * @since 1.0.0
+     */
     public function apply()
     {
         $data = $this->input->post->get('jform', [], 'array');
@@ -30,7 +37,7 @@ class MigrationController extends BaseController
         $sourceCmsId = isset($data['source_cms']) ? (int) $data['source_cms'] : 0;
         $targetCmsId = isset($data['target_cms']) ? (int) $data['target_cms'] : 0;
 
-        /** @var MigrationModel $model */
+        /** @var \Joomla\Component\CCM\Administrator\Model\MigrationModel $model */
         $model = $this->getModel();
         
         try {
@@ -72,15 +79,15 @@ class MigrationController extends BaseController
                 $this->setMessage(Text::_('COM_CCM_MESSAGE_MIGRATION_COMPLETED_SUCCESSFULLY') . implode(', ', $successfulMigrations));
             } elseif (!empty($successfulMigrations) && !empty($failedMigrations)) {
                 $message = Text::_('COM_CCM_MESSAGE_MIGRATION_COMPLETED_PARTIALLY');
-                $message .= Text::_('Successful: ') . implode(', ', $successfulMigrations) . '. ';
-                $message .= Text::_('Failed: ') . implode(', ', $failedMigrations);
+                $message .= Text::_('COM_CCM_MESSAGE_MIGRATION_SUCCESSFUL') . implode(', ', $successfulMigrations) . '. ';
+                $message .= Text::_('COM_CCM_MESSAGE_MIGRATION_FAILED') . implode(', ', $failedMigrations);
                 $this->setMessage($message, 'warning');
             } else {
-                $this->setMessage(Text::_('All migrations failed: ') . implode(', ', $failedMigrations), 'error');
+                $this->setMessage(Text::_('COM_CCM_MESSAGE_MIGRATION_FAILED_ALL') . implode(', ', $failedMigrations), 'error');
             }
             
         } catch (\Exception $e) {
-            $this->setMessage(Text::_('Migration failed: ') . $e->getMessage(), 'error');
+            $this->setMessage(Text::_('COM_CCM_MESSAGE_MIGRATION_FAILED_THIS') . $e->getMessage(), 'error');
         }
         $this->setRedirect('index.php?option=com_ccm&view=migration');
     }
