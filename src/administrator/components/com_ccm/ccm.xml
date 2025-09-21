@@ -11,23 +11,15 @@
     <install>
         <sql>
             <file driver="mysql" charset="utf8">sql/install.mysql.utf8.sql</file>
+            <file driver="postgresql" charset="utf8">sql/install.postgresql.utf8.sql</file>
         </sql>
     </install>
     <uninstall>
         <sql>
             <file driver="mysql" charset="utf8">sql/uninstall.mysql.utf8.sql</file>
+            <file driver="postgresql" charset="utf8">sql/uninstall.postgresql.utf8.sql</file>
         </sql>
     </uninstall>
-    <update>
-        <sql>
-            <file driver="mysql" charset="utf8">sql/updates/mysql/1.0.1.sql</file>
-        </sql>
-    </update>
-    <api>
-        <files folder="api/components/com_ccm">
-            <folder>src</folder>
-        </files>
-    </api>
     <administration>
         <files>
             <folder>services</folder>

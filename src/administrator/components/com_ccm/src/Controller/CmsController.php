@@ -23,16 +23,6 @@ class CmsController extends FormController
         return '&view=cmss';
     }
 
-    public function migrate()
-    {
-        error_log('CmsController::migrate called');
-        $migration = new \Joomla\Component\CCM\Administrator\Migration\Migration();
-        $migration->migrate();
-
-        // Optionally redirect or set a message
-        $this->setMessage('Migration completed!');
-        // $this->setRedirect('index.php?option=com_ccm');
-    }
     /**
      * Save the CMS item.
      *

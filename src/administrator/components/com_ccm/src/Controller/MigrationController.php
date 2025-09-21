@@ -13,15 +13,23 @@ namespace Joomla\Component\CCM\Administrator\Controller;
 \defined('_JEXEC') or die;
 // phpcs:enable PSR1.Files.SideEffects
 
+use Joomla\CMS\Language\Text;
 use Joomla\CMS\MVC\Controller\BaseController;
 
 class MigrationController extends BaseController
 {
+    /**
+     * Apply migration from source CMS to target CMS.
+     *
+     * @return void
+     *
+     * @since 1.0.0
+     */
     public function apply()
     {
         $data = $this->input->post->get('jform', [], 'array');
         if (empty($data)) {
-            $this->setMessage('No data provided for migration.', 'error');
+            $this->setMessage(Text::_('COM_CCM_MESSAGE_MIGRATION_NO_DATA_PROVIDED'), 'error');
             $this->setRedirect('index.php?option=com_ccm&view=migration');
             return;
         }
@@ -29,7 +37,7 @@ class MigrationController extends BaseController
         $sourceCmsId = isset($data['source_cms']) ? (int) $data['source_cms'] : 0;
         $targetCmsId = isset($data['target_cms']) ? (int) $data['target_cms'] : 0;
 
-        /** @var MigrationModel $model */
+        /** @var \Joomla\Component\CCM\Administrator\Model\MigrationModel $model */
         $model = $this->getModel();
         
         try {
@@ -68,18 +76,18 @@ class MigrationController extends BaseController
 
             // Prepare summary message
             if (!empty($successfulMigrations) && empty($failedMigrations)) {
-                $this->setMessage('All migrations completed successfully: ' . implode(', ', $successfulMigrations));
+                $this->setMessage(Text::_('COM_CCM_MESSAGE_MIGRATION_COMPLETED_SUCCESSFULLY') . implode(', ', $successfulMigrations));
             } elseif (!empty($successfulMigrations) && !empty($failedMigrations)) {
-                $message = 'Partial migration completed. ';
-                $message .= 'Successful: ' . implode(', ', $successfulMigrations) . '. ';
-                $message .= 'Failed: ' . implode(', ', $failedMigrations);
+                $message = Text::_('COM_CCM_MESSAGE_MIGRATION_COMPLETED_PARTIALLY');
+                $message .= Text::_('COM_CCM_MESSAGE_MIGRATION_SUCCESSFUL') . implode(', ', $successfulMigrations) . '. ';
+                $message .= Text::_('COM_CCM_MESSAGE_MIGRATION_FAILED') . implode(', ', $failedMigrations);
                 $this->setMessage($message, 'warning');
             } else {
-                $this->setMessage('All migrations failed: ' . implode(', ', $failedMigrations), 'error');
+                $this->setMessage(Text::_('COM_CCM_MESSAGE_MIGRATION_FAILED_ALL') . implode(', ', $failedMigrations), 'error');
             }
             
         } catch (\Exception $e) {
-            $this->setMessage('Migration failed: ' . $e->getMessage(), 'error');
+            $this->setMessage(Text::_('COM_CCM_MESSAGE_MIGRATION_FAILED_THIS') . $e->getMessage(), 'error');
         }
         $this->setRedirect('index.php?option=com_ccm&view=migration');
     }

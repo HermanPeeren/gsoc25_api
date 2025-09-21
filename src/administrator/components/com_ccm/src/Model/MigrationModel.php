@@ -84,9 +84,9 @@ class MigrationModel extends FormModel
     /**
      * Migrate from source CMS to target CMS.
      *
-     * @return  void
+     * @return  boolean
      *
-     * @since   4.0.0
+     * @since   1.0.0
      */
     public function migrate($sourceCmsId, $targetCmsId, $sourceType, $targetType)
     {
