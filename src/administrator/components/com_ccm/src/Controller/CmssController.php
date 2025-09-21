@@ -13,14 +13,14 @@ namespace Joomla\Component\CCM\Administrator\Controller;
 \defined('_JEXEC') or die;
 // phpcs:enable PSR1.Files.SideEffects
 
-use Joomla\CMS\MVC\Controller\ListController;
+use Joomla\CMS\MVC\Controller\AdminController;
 use Joomla\CMS\Router\Route;
 /**
  * CmssController class.
  *
  * @since 1.0.0
  */
-class CmssController extends ListController
+class CmssController extends AdminController
 {
     public function add()
     {
