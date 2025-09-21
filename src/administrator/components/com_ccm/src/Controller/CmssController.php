@@ -14,7 +14,7 @@ namespace Joomla\Component\CCM\Administrator\Controller;
 // phpcs:enable PSR1.Files.SideEffects
 
 use Joomla\CMS\MVC\Controller\ListController;
-use Joomla\CMS\Router\Route as JRoute;
+use Joomla\CMS\Router\Route;
 /**
  * CmssController class.
  *
@@ -26,6 +26,6 @@ class CmssController extends ListController
     {
         echo "Adding a new CMS item.\n";
         error_log("CmssController::add called");
-        $this->setRedirect(JRoute::_('index.php?option=com_ccm&task=cmss.edit', false));
+        $this->setRedirect(Route::_('index.php?option=com_ccm&task=cmss.edit', false));
     }
 }
