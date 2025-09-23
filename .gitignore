@@ -5,3 +5,4 @@ composer.lock
 cypress.config.mjs
 .phpunit.result.cache
 com_ccm.*.zip
+/jorobo.ini

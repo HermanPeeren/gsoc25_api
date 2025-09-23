@@ -1,64 +1,47 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <extension type="component" method="upgrade">
-    <name>COM_CCM</name>
-    <creationDate>2025-07-06</creationDate>
+    <name>com_ccm</name>
+    <creationDate>2025-05-14</creationDate>
     <author>Joomla! Project</author>
-    <authorUrl>https://github.com/username/gsoc25_api</authorUrl>
-    <copyright>Copyright (C) 2025 Joomla. All rights reserved.</copyright>
+    <authorUrl>https://github.com/joomla-projects/gsoc25_api</authorUrl>
     <license>GNU General Public License version 2 or later; see LICENSE.txt</license>
-    <version>0.8.0-alpha</version>
+    <version>__DEPLOY_VERSION__</version>
     <description>COM_CCM_DESCRIPTION</description>
-
+    <namespace path="src">Joomla\Component\CCM</namespace>
     <install>
         <sql>
             <file driver="mysql" charset="utf8">sql/install.mysql.utf8.sql</file>
+            <file driver="postgresql" charset="utf8">sql/install.postgresql.utf8.sql</file>
         </sql>
     </install>
-
     <uninstall>
         <sql>
             <file driver="mysql" charset="utf8">sql/uninstall.mysql.utf8.sql</file>
+            <file driver="postgresql" charset="utf8">sql/uninstall.postgresql.utf8.sql</file>
         </sql>
     </uninstall>
-
-    <update>
-        <schemas>
-            <schemapath type="mysql">sql/updates/mysql</schemapath>
-        </schemas>
-    </update>
-
-    <files folder="administrator/components/com_ccm">
-        <filename>ccm.xml</filename>
-        <filename>access.xml</filename>
-        <filename>config.xml</filename>
-        <folder>forms</folder>
-        <folder>language</folder>
-        <folder>services</folder>
-        <folder>sql</folder>
-        <folder>src</folder>
-        <folder>tmpl</folder>
-    </files>
-
     <administration>
-        <menu img="components/com_ccm/images/icon-16-ccm.png">COM_CCM_MENU</menu>
         <files folder="administrator/components/com_ccm">
-            <filename>ccm.xml</filename>
-            <filename>access.xml</filename>
-            <filename>config.xml</filename>
-            <folder>forms</folder>
-            <folder>language</folder>
             <folder>services</folder>
-            <folder>sql</folder>
             <folder>src</folder>
             <folder>tmpl</folder>
+            <folder>sql</folder>
+            <folder>forms</folder>
+            <file>config.xml</file>
+            <file>access.xml</file>
         </files>
+        <languages folder="administrator/components/com_ccm">
+            <language tag="en-GB">language/en-GB/com_ccm.sys.ini</language>
+            <language tag="en-GB">language/en-GB/com_ccm.ini</language>
+        </languages>
+        <menu link="option=com_ccm" img="class:default">COM_CCM_MENU_BACKEND</menu>
+        <submenu>
+            <menu link="option=com_ccm&amp;view=cmss" img="class:default">COM_CCM_SUBMENU_CMS</menu>
+            <menu link="option=com_ccm&amp;view=migration" img="class:default">COM_CCM_SUBMENU_MIGRATION</menu>
+        </submenu>
     </administration>
 
-    <scriptfile>script.php</scriptfile>
-
     <updateservers>
-        <server type="extension" priority="1" name="CCM Updates">
-            https://github.com/username/gsoc25_api/releases/latest/download/update.xml
-        </server>
+        <server type="extension" priority="1" name="CCM Update">https://github.com/joomla-projects/gsoc25_api/blob/main/update.xml</server>
     </updateservers>
 </extension>

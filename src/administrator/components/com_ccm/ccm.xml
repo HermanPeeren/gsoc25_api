@@ -3,9 +3,9 @@
     <name>com_ccm</name>
     <creationDate>2025-05-14</creationDate>
     <author>Joomla! Project</author>
-    <authorEmail>joomla@example.com</authorEmail>
+    <authorUrl>https://github.com/joomla-projects/gsoc25_api</authorUrl>
     <license>GNU General Public License version 2 or later; see LICENSE.txt</license>
-    <version>0.10.0</version>
+    <version>__DEPLOY_VERSION__</version>
     <description>COM_CCM_DESCRIPTION</description>
     <namespace path="src">Joomla\Component\CCM</namespace>
     <install>
@@ -21,7 +21,7 @@
         </sql>
     </uninstall>
     <administration>
-        <files>
+        <files folder="administrator/components/com_ccm">
             <folder>services</folder>
             <folder>src</folder>
             <folder>tmpl</folder>
@@ -30,7 +30,7 @@
             <file>config.xml</file>
             <file>access.xml</file>
         </files>
-        <languages>
+        <languages folder="administrator/components/com_ccm">
             <language tag="en-GB">language/en-GB/com_ccm.sys.ini</language>
 			<language tag="en-GB">language/en-GB/com_ccm.ini</language>
 		</languages>
